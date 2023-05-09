@@ -17,16 +17,25 @@ I haven't made any advanced setup, so you will have to download a zip of the rep
 Type `python3 main.py -h` into the commandline to display the help message.
 
 Here is a summery of the commandline arguments:
-`-f --filename` is the filepath to your image, the default image name is image.png. 
+
+`-f --filename` is the filepath to your image, the default image name is image.png.
+
 `-s --sampleSize` is the size of the samples, default is 16 (the output will be 16x smaller)
+
 `-c --contrast` allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)
+
 `-cb --contrastbreak` is the border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)
+
+`-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
 
 ## TODO
 - [ ] improve smapling algorithm
 - [ ] add forground or background only
-- [ ] add output to file
+- [ ] make better output file handler (file formats)
 - [ ] improve contrast algorithm
 - [ ] make "setsize" instead of sampleSize- it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
 - [ ] add examples to readme
+- [ ] add option to display or not display as it is being created
+- [ ] better character sets
+

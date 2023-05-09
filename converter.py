@@ -59,6 +59,8 @@ size=img.size
 sampleSize=int(args.sampleSize)
 contrast=float(args.contrast)
 contrastbreak=int(args.contrastbreak)
+outputFile=args.output
+outputContent=[]
 print(size)
 
 for ya in range(0,size[1],sampleSize):
@@ -68,6 +70,13 @@ for ya in range(0,size[1],sampleSize):
         line+="\033[48;2;"+str(color0[0][0])+";"+str(color0[0][1])+";"+str(color0[0][2])+"m"
         line+="\033[38;2;"+str(color1[0][0])+";"+str(color1[0][1])+";"+str(color1[0][2])+"m"
         line+=selectchar(characters, color0, color1)
-    print(line)
+    line+="\n"
+    outputContent.append(line)
+    print(line,end="")
 
-print("\033[0mTime",time.time()-startTime,"s")
+if outputFile!=None:
+    with open(outputFile,"w") as f:
+        for line in outputContent:
+            f.write(line)
+
+print("\033[0mTime:",time.time()-startTime,"s")
