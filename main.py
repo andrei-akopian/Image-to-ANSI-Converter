@@ -9,6 +9,7 @@ parser.add_argument("-c","--contrast",default=1,help="Size of the samples, defau
 parser.add_argument("-s","--sampleSize",default=16,help="allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)")
 parser.add_argument("-cb","--contrastbreak",default=128,help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
 parser.add_argument("-o","--output",default=None,help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
+# parser.add_argument("-d","--display", action='store_true', default=False, help="if true (default) will display the image as it is being generated")
 args=parser.parse_args()
 
 with open("converter.py","r") as f:

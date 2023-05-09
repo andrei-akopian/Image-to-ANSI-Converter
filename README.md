@@ -29,6 +29,13 @@ Here is a summery of the commandline arguments:
 
 `-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
 
+## Examples
+Mona Lisa by Leonardo da Vinci downloaded from Wikipedia
+![MonaLisaANSI](examples/MonaLisaANSI.png)
+An output file that can be displayed by typing `cat examples/MonaLisa.txt` is also provided.
+
+![StarryNight](examples/StarryNightANSI.png)
+Starry Night by Vincent van Gogh with 1.2 contrast and 80 contrast break and sample size 30
 ## TODO
 - [ ] improve smapling algorithm
 - [ ] add forground or background only

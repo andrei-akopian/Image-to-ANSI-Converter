@@ -2,6 +2,7 @@ from PIL import Image
 import time
 startTime=time.time()
 
+# display=args.display
 characters="\'^:!=*$%@#"
 def selectchar(characters,color0,color1):
     fraction=color1[1]/(color0[1]+color1[1])
@@ -72,6 +73,7 @@ for ya in range(0,size[1],sampleSize):
         line+=selectchar(characters, color0, color1)
     line+="\n"
     outputContent.append(line)
+    # if display:
     print(line,end="")
 
 if outputFile!=None:
