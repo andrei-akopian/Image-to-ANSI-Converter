@@ -6,9 +6,10 @@ A tool for converting images into ANSI arts. Written in python using Pillow imag
 - baisic knowledge of terminals, filepaths and commandline argument usage.
 - Python pillow library
 - Image in a format that Pillow can open (`.png .jpg .jpeg`)
+- Square font, you need a font that is the same size vertically and horizaontally: [SQUARE] (https://strlen.com/square/) [Square One](https://www.dafont.com/square-one.font) 
 
 ## Usage
-As I said, you can use the program enitrely formt the commandline.
+As I said, you can use the program entirely form the commandline.
 
 ### Setup
 I haven't made any advanced setup, so you will have to download a zip of the repo, extract it whereever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
@@ -38,4 +39,5 @@ Here is a summery of the commandline arguments:
 - [ ] add examples to readme
 - [ ] add option to display or not display as it is being created
 - [ ] better character sets
-
+- [ ] add links to wikis
+- [ ] make support for other ansi formats
