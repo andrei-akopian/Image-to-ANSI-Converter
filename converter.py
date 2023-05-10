@@ -1,8 +1,21 @@
 from PIL import Image
 import time
+import math
 startTime=time.time()
 
+## Adjusters
 # display=args.display
+blur=int(args.blur)**3
+contrast=float(args.contrast)
+contrastbreak=int(args.contrastbreak)
+
+sampleSize=args.sampleSize
+if "x" in sampleSize:
+    sampleSize=list(map(int,sampleSize.split("x")))
+else:
+    sampleSize=int(sampleSize)
+    sampleSize=[sampleSize,sampleSize]
+
 characters="\'^:!=*$%@#"
 def selectchar(characters,color0,color1):
     fraction=color1[1]/(color0[1]+color1[1])
@@ -11,16 +24,15 @@ def selectchar(characters,color0,color1):
     return " "
 
 #TODO make filters to filter noise colors
-def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak=128):
+def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak=128,blur=125000):
     #parse
     pointList=[] # tuples [color,multiplier]
-    for x in range(xa,xa+sampleSize):
-        for y in range(ya,ya+sampleSize):
+    for x in range(xa,xa+sampleSize[0]):
+        for y in range(ya,ya+sampleSize[1]):
             if x<size[0] and y<size[1]:
-                newPoint=[imgpx[x,y],1]
+                newPoint=[list(imgpx[x,y]),1]
                 #contrast
                 if contrast!=1:
-                    newPoint[0]=list(newPoint[0])
                     if 0.33*newPoint[0][0]+0.5*newPoint[0][1]+0.16*newPoint[0][2]>contrastbreak:
                         newPoint[0][0]=min(int(newPoint[0][0]*contrast),255)
                         newPoint[0][1]=min(int(newPoint[0][1]*contrast),255)
@@ -34,9 +46,11 @@ def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak=128):
                 for oldPoint in pointList:
                     d=0
                     for c in range(3):
-                        d+=abs(newPoint[0][c]-oldPoint[0][c])//oldPoint[1]
-                    if d<50:
-                        oldPoint[1]+=0.1
+                        d+=abs(newPoint[0][c]-oldPoint[0][c])**2
+                    if d<((blur+oldPoint[1])*0.24)**(2/3):
+                        for c in range(3):
+                            oldPoint[0][c]=(oldPoint[0][c]*oldPoint[1]+newPoint[0][c])//(oldPoint[1]+1)
+                        oldPoint[1]+=1
                         breakflag=1
                         break
                 if not(breakflag):
@@ -53,21 +67,19 @@ def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak=128):
     return pointList[maxI], pointList[secondMaxI]
 
 img = Image.open(args.filename)
-
 imgpx = img.load()
-
 size=img.size
-sampleSize=int(args.sampleSize)
-contrast=float(args.contrast)
-contrastbreak=int(args.contrastbreak)
+
 outputFile=args.output
 outputContent=[]
-print(size)
 
-for ya in range(0,size[1],sampleSize):
+print("Original Size:",size[0],size[1],"px")
+print("ANSI Size:",math.ceil(size[0]/sampleSize[0]),math.ceil(size[1]//sampleSize[1]),"chr")
+
+for ya in range(0,size[1],sampleSize[1]):
     line=""
-    for xa in range(0,size[0],sampleSize):
-        color0, color1 =sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak)
+    for xa in range(0,size[0],sampleSize[0]):
+        color0, color1 =sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur)
         line+="\033[48;2;"+str(color0[0][0])+";"+str(color0[0][1])+";"+str(color0[0][2])+"m"
         line+="\033[38;2;"+str(color1[0][0])+";"+str(color1[0][1])+";"+str(color1[0][2])+"m"
         line+=selectchar(characters, color0, color1)
@@ -81,4 +93,4 @@ if outputFile!=None:
         for line in outputContent:
             f.write(line)
 
-print("\033[0mTime:",time.time()-startTime,"s")
+print("\033[0mConverstion Time:",time.time()-startTime,"s")

@@ -21,11 +21,13 @@ Here is a summery of the commandline arguments:
 
 `-f --filename` is the filepath to your image, the default image name is image.png.
 
-`-s --sampleSize` is the size of the samples, default is 16 (the output will be 16x smaller)
+`-s --sampleSize` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
 
 `-c --contrast` allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)
 
 `-cb --contrastbreak` is the border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)
+
+`-b --blur` makes a wider range of colors blend into one. (0-765, 0-200 recomended)
 
 `-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
 
