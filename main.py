@@ -11,7 +11,7 @@ ArgumentDefaultsValues={
     "contrastbreak":128,
     "output":None,
     "blur":30,
-    "palette":None,
+    "palettename":None,
 }
 
 #parse cli arguments
@@ -25,7 +25,7 @@ parser.add_argument("-s","--sampleSize",default=ArgumentDefaultsValues["sampleSi
 parser.add_argument("-cb","--contrastbreak",default=ArgumentDefaultsValues["contrastbreak"],help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
 parser.add_argument("-o","--output",default=ArgumentDefaultsValues["output"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
 parser.add_argument("-b","--blur",default=ArgumentDefaultsValues["blur"],help="Blurs a furhter range of colors")
-parser.add_argument("-p","--palette",default=ArgumentDefaultsValues["palette"],help="Enter name of the pallete from palettes or file path")
+parser.add_argument("-p","--palettename",default=ArgumentDefaultsValues["palettename"],help="Enter name of the pallete from palettes or file path")
 # parser.add_argument("-d","--display", action='store_true', default=False, help="if true (default) will display the image as it is being generated")
 args=parser.parse_args()
 
@@ -35,8 +35,67 @@ args=parser.parse_args()
 
 startTime=time.time()
 
+class ColorPalette: #TODO the pattern probably needs some standartisation
+    def __init__(self):
+        self.pattern="{ESC}[{foreground}m{ESC}[{background}m"
+        self.colorPoints=[]
+        self.Raxis=[]
+        self.Gaxis=[]
+        self.Baxis=[]
+        self.muteable=True
 
-anchorColors=[]
+    def addpoint(self,point):
+        self.colorPoints.append(point)
+        self.Raxis.insert(self.search(self.Raxis,point.r,get_val_funk=lambda o: o.r),point)
+        self.Gaxis.insert(self.search(self.Gaxis,point.g,get_val_funk=lambda o: o.g),point)
+        self.Baxis.insert(self.search(self.Baxis,point.b,get_val_funk=lambda o: o.b),point)
+    
+    def search(self,axis,target,start=0,end=-1,get_val_funk=lambda o: o.r): #TODO can be improved
+        #binary search to locate the position a point is on the axies
+        if end==-1:
+            end=len(axis)
+        if start==end:
+            return start
+        elif target>get_val_funk(axis[(start+end)//2]):
+            return self.search(axis,target,(start+end)//2+1,end,get_val_funk)
+        else:
+            return self.search(axis,target,start,(start+end)//2,get_val_funk)
+
+    def ground(self):
+        for point in self.colorPoints:
+            point.weight=1
+
+
+class ColorPoint:
+    def __init__(self,color):
+        self.r=color[0]
+        self.g=color[1]
+        self.b=color[2]
+        self.weight=1
+        self.foreground=""
+        self.background=""
+    def getForeground(self):
+        if self.foreground=="":
+            return "38;2;"+str(self.r)+";"+str(self.g)+";"+str(self.b)
+        else:
+            return self.foreground
+    def getBackground(self):
+        if self.background=="":
+            return "48;2;"+str(self.r)+";"+str(self.g)+";"+str(self.b)
+        else:
+            return self.background
+    
+    def setContrast(self,contrast,contrastbreak):
+        if contrast!=1:
+            if 0.33*self.r+0.5*self.g+0.16*self.b>contrastbreak:
+                self.r=min(int(self.r*contrast),255)
+                self.g=min(int(self.g*contrast),255)
+                self.b=min(int(self.b*contrast),255)
+            else:
+                self.r=min(int(self.r/contrast),255)
+                self.g=min(int(self.g/contrast),255)
+                self.b=min(int(self.b/contrast),255)
+
 ## Adjusters #TODO export this into a different function
 # display=args.display
 sampleSize=args.sampleSize
@@ -47,86 +106,79 @@ else:
     sampleSize=[sampleSize,sampleSize]
 
 # Palletes logic
-palette=args.palette
-usePalette=False
-if palette!=None:
-    usePalette=True
-    palette, anchorColors=paletteUtils.loadPalette(palette)
+palettename=args.palettename
+palette=ColorPalette()
+if palettename!=None:
+    paletteUtils.loadPalette(palettename,palette,ColorPoint)
 
 sampleParameters = {
     "sampleSize" : sampleSize,
     "contrast" : float(args.contrast),
     "contrastbreak" : int(args.contrastbreak),
     "blur" : int(args.blur)**3,
-    "usePalette" : usePalette
 }
 
-characters="\'^:!=*$%@#"
+characters="\'^:!=*$%@#" #TODO improve character settings
 def selectchar(characters,color0,color1):
-    fraction=color1[1]/(color0[1]+color1[1])
+    fraction=color1.weight/(color0.weight+color1.weight)
     if fraction<0.5:
         return characters[int(fraction*2*10)]
     return " "
 
 #TODO make filters to filter noise colors
-def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,usePalette,anchorColors=[]):
+def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
     #sampling
-    if not(usePalette):
-        anchorColors=[]
+    if palette.muteable:
+        palette=ColorPalette()
     else:
-        for c in anchorColors:
-            c[1]=1
+        palette.ground()
     for x in range(xa,xa+sampleSize[0]):
         for y in range(ya,ya+sampleSize[1]):
             if x<size[0] and y<size[1]:
-                newPoint=[list(imgpx[x,y]),1]
+                newPoint=ColorPoint(imgpx[x,y])
                 #contrast
-                if contrast!=1:
-                    if 0.33*newPoint[0][0]+0.5*newPoint[0][1]+0.16*newPoint[0][2]>contrastbreak:
-                        newPoint[0][0]=min(int(newPoint[0][0]*contrast),255)
-                        newPoint[0][1]=min(int(newPoint[0][1]*contrast),255)
-                        newPoint[0][2]=min(int(newPoint[0][2]*contrast),255)
-                    else:
-                        newPoint[0][0]=min(int(newPoint[0][0]/contrast),255)
-                        newPoint[0][1]=min(int(newPoint[0][1]/contrast),255)
-                        newPoint[0][2]=min(int(newPoint[0][2]/contrast),255)
+                newPoint.setContrast(contrast,contrastbreak)
                 #main code
-                if usePalette:
+                if not(palette.muteable):
                     bestmatch=0
                     bestd=800
                     d=0
-                    for i,color in enumerate(anchorColors):
-                        for c in range(3):
-                            d+=abs(color[0][c]-newPoint[0][c])**2
+                    for i,point in enumerate(palette.colorPoints):
+                        d=0
+                        d+=abs(point.r-newPoint.r)**2
+                        d+=abs(point.g-newPoint.g)**2
+                        d+=abs(point.b-newPoint.b)**2
                         d=d**0.5
                         if d<bestd:
                             bestd=d
                             bestmatch=i
-                    anchorColors[bestmatch][1]+=1
+                    palette.colorPoints[bestmatch].weight+=1
                 else:
                     breakflag=0
-                    for oldPoint in anchorColors:
+                    for point in palette.colorPoints:
                         d=0
-                        for c in range(3):
-                            d+=abs(newPoint[0][c]-oldPoint[0][c])**2
-                        if d<((blur+oldPoint[1])*0.24)**(2/3):
-                            for c in range(3):
-                                oldPoint[0][c]=(oldPoint[0][c]*oldPoint[1]+newPoint[0][c])//(oldPoint[1]+1)
-                            oldPoint[1]+=1
+                        d+=abs(point.r-newPoint.r)**2
+                        d+=abs(point.g-newPoint.g)**2
+                        d+=abs(point.b-newPoint.b)**2
+                        if d<((blur+point.weight)*0.24)**(2/3):
+                            point.r=(point.r*point.weight+newPoint.r)//(point.weight+1)
+                            point.g=(point.g*point.weight+newPoint.g)//(point.weight+1)
+                            point.b=(point.b*point.weight+newPoint.b)//(point.weight+1)
+                            point.weight+=1
                             breakflag=1
                             break
                     if not(breakflag):
-                        anchorColors.append(newPoint)
+                        palette.addpoint(newPoint)
     #find greatest 2
-    maxI=len(anchorColors)-1
+    maxI=len(palette.colorPoints)-1
     secondMaxI=0
-    for i in range(len(anchorColors)):
-        if anchorColors[maxI][1]<anchorColors[i][1]:
+    for i in range(len(palette.colorPoints)):
+        if palette.colorPoints[maxI].weight<palette.colorPoints[i].weight:
             secondMaxI=maxI
             maxI=i
-        elif anchorColors[secondMaxI][1]<anchorColors[i][1]:
+        elif palette.colorPoints[secondMaxI].weight<palette.colorPoints[i].weight:
             secondMaxI=i
-    return anchorColors[maxI], anchorColors[secondMaxI], maxI, secondMaxI
+    return palette.colorPoints[maxI], palette.colorPoints[secondMaxI]
 
 img = Image.open(args.filename)
 imgpx = img.load()
@@ -137,20 +189,13 @@ outputContent=[]
 
 print("Original Size:",size[0],size[1],"px")
 print("ANSI Size:",math.ceil(size[0]/sampleSize[0]),math.ceil(size[1]//sampleSize[1]),"chr")
-print("Estimated Runtime:",len(anchorColors)*size[0]*size[1]//100000/20,"s at 2M op/s")
 
 for ya in range(0,size[1],sampleSize[1]):
     line=""
     for xa in range(0,size[0],sampleSize[0]):
-        if usePalette:
-            color0, color1, color0i, color1i =sample(imgpx,xa,ya,**sampleParameters,anchorColors=anchorColors)
-            line+=palette["pattern"].format(ESC="\033",foreground=palette["colors"][color0i][0],background=palette["colors"][color1i][1])
-            line+=selectchar(characters, color0, color1)
-        else:
-            color0, color1, _, _ =sample(imgpx,xa,ya,**sampleParameters)
-            line+="\033[48;2;"+str(color0[0][0])+";"+str(color0[0][1])+";"+str(color0[0][2])+"m"
-            line+="\033[38;2;"+str(color1[0][0])+";"+str(color1[0][1])+";"+str(color1[0][2])+"m"
-            line+=selectchar(characters, color0, color1)
+        color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
+        line+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background=color1.getBackground())
+        line+=selectchar(characters, color0, color1)
     line+="\n"
     outputContent.append(line)
     # if display:

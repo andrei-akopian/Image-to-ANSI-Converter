@@ -31,14 +31,20 @@ def save_pal(filename, colors):
             r, g, b = color
             f.write(bytes([r, g, b]))
 
-def loadPalette(palettename):
+def loadPalette(palettename,palette,ColorPoint):
+    #open file
     if not("/" in palettename):
         palettename="palettes/"+palettename+".json"
-    palette={}
+    data={}
     with open(palettename,"r") as f:
-        palette=json.load(f)
-    
-    #TODO rename everything to anchorColors
-    anchorColors = [[color[2], 1] for color in palette["colors"]]
-    return palette, anchorColors
+        data=json.load(f)
+    #create palette
+    palette.muteable=False
+    palette.pattern=data["pattern"]
+    for cp in data["colors"]:
+        palette.colorPoints.append(ColorPoint(cp[2]))
+        palette.colorPoints[-1].foreground=cp[0]
+        palette.colorPoints[-1].foreground=cp[1]
+
+    return palette
 
