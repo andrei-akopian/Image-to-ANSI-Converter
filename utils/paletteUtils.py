@@ -38,8 +38,7 @@ def loadPalette(palettename):
     with open(palettename,"r") as f:
         palette=json.load(f)
     
-    anchorColors=[] #TODO rename everything to anchorColors
-    for color in palette["colors"]:
-        anchorColors.append([color[2],1])
+    #TODO rename everything to anchorColors
+    anchorColors = [[color[2], 1] for color in palette["colors"]]
     return palette, anchorColors
 
