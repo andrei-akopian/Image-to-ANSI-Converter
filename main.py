@@ -11,6 +11,7 @@ parser.add_argument("-s","--sampleSize",default="16x16",help="Size of the sample
 parser.add_argument("-cb","--contrastbreak",default=128,help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
 parser.add_argument("-o","--output",default=None,help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
 parser.add_argument("-b","--blur",default=50,help="Blurs a furhter range of colors")
+parser.add_argument("-p","--palette",default=None,help="Enter name of the pallete from palettes or file path")
 # parser.add_argument("-d","--display", action='store_true', default=False, help="if true (default) will display the image as it is being generated")
 args=parser.parse_args()
 
