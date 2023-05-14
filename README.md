@@ -39,14 +39,12 @@ An output file that can be displayed by typing `cat examples/MonaLisa.txt` is al
 ![StarryNight](examples/StarryNightANSI.png)
 Starry Night by Vincent van Gogh with 1.2 contrast and 80 contrast break and sample size 30
 ## TODO
-- [ ] improve smapling algorithm
 - [ ] add forground or background only
 - [ ] make better output file handler (file formats)
 - [ ] improve contrast algorithm
 - [ ] make "setsize" instead of sampleSize- it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
-- [ ] add examples to readme
 - [ ] add option to display or not display as it is being created
 - [ ] better character sets
-- [ ] add links to wikis
-- [ ] make support for other ansi formats
+- [ ] add links to wikipedia in readme
+- [ ] make support for other ansi formats/palettes

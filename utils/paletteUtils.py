@@ -42,7 +42,7 @@ def loadPalette(palettename,palette,ColorPoint):
     palette.muteable=False
     palette.pattern=data["pattern"]
     for cp in data["colors"]:
-        palette.colorPoints.append(ColorPoint(cp[2]))
+        palette.addpoint(ColorPoint(cp[2]))
         palette.colorPoints[-1].foreground=cp[0]
         palette.colorPoints[-1].foreground=cp[1]
 
