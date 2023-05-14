@@ -31,6 +31,8 @@ Here is a summery of the commandline arguments:
 
 `-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
 
+`-d` will prevent the program from printing into the commandline, if you use `-d` then also use `-o` to save the output
+
 ## Examples
 Mona Lisa by Leonardo da Vinci downloaded from Wikipedia
 ![MonaLisaANSI](examples/MonaLisaANSI.png)

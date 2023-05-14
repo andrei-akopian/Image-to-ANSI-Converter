@@ -14,6 +14,7 @@ ArgumentDefaultsValues={
     "output":None,
     "blur":30,
     "palettename":None,
+    "display":True
 }
 
 #parse cli arguments
@@ -28,8 +29,8 @@ parser.add_argument("-cb","--contrastbreak",default=ArgumentDefaultsValues["cont
 parser.add_argument("-o","--output",default=ArgumentDefaultsValues["output"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
 parser.add_argument("-b","--blur",default=ArgumentDefaultsValues["blur"],help="Blurs a furhter range of colors")
 parser.add_argument("-p","--palettename",default=ArgumentDefaultsValues["palettename"],help="Enter name of the pallete from palettes or file path")
-# parser.add_argument("-d","--display", action='store_true', default=False, help="if true (default) will display the image as it is being generated")
-args=parser.parse_args()
+parser.add_argument("-d","--display", action='store_const',const=False, default=ArgumentDefaultsValues["display"], help="if true (default) will display the image as it is being generated")
+arguments=parser.parse_args()
 
 class ColorPalette: #TODO the pattern probably needs some standartisation
     def __init__(self):
@@ -93,34 +94,30 @@ class ColorPoint:
                 self.g=min(int(self.g/contrast),255)
                 self.b=min(int(self.b/contrast),255)
 
-## Adjusters #TODO export this into a different function
-# display=args.display
-sampleSize=args.sampleSize
-if "x" in sampleSize:
-    sampleSize=list(map(int,sampleSize.split("x")))
-else:
-    sampleSize=int(sampleSize)
-    sampleSize=[sampleSize,sampleSize]
 
-# Palletes logic
-palettename=args.palettename
-palette=ColorPalette()
-if palettename!=None:
-    paletteUtils.loadPalette(palettename,palette,ColorPoint)
+def parseParameters(arguments):
+    #sample size
+    sampleSize=arguments.sampleSize
+    if "x" in sampleSize:
+        sampleSize=list(map(int,sampleSize.split("x")))
+    else:
+        sampleSize=int(sampleSize)
+        sampleSize=[sampleSize,sampleSize]
 
-sampleParameters = {
-    "sampleSize" : sampleSize,
-    "contrast" : float(args.contrast),
-    "contrastbreak" : int(args.contrastbreak),
-    "blur" : int(args.blur)**3,
-}
+    # Palettes logic
+    palettename=arguments.palettename
+    palette=ColorPalette()
+    if palettename!=None:
+        paletteUtils.loadPalette(palettename,palette,ColorPoint)
 
-characters="\'^:!=*$%@#" #TODO improve character settings
-def selectchar(characters,color0,color1):
-    fraction=color1.weight/(color0.weight+color1.weight)
-    if fraction<0.5:
-        return characters[int(fraction*2*10)]
-    return " "
+    sampleParameters = {
+        "sampleSize" : sampleSize,
+        "contrast" : float(arguments.contrast),
+        "contrastbreak" : int(arguments.contrastbreak),
+        "blur" : int(arguments.blur)**3,
+    }
+
+    return sampleParameters, palette
 
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
@@ -258,31 +255,41 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
+if __name__ == "__main__":
+    img = Image.open(arguments.filename)
+    imgpx = img.load()
+    size=img.size
 
-img = Image.open(args.filename)
-imgpx = img.load()
-size=img.size
+    outputFile=arguments.output
+    outputContent=[]
+    display=arguments.display
 
-outputFile=args.output
-outputContent=[]
+    sampleParameters, palette = parseParameters(arguments)
 
-print("Original Size:",size[0],size[1],"px")
-print("ANSI Size:",math.ceil(size[0]/sampleSize[0]),math.ceil(size[1]//sampleSize[1]),"chr")
+    characters="\'^:!=*$%@#" #TODO improve character settings
+    def selectchar(characters,color0,color1):
+        fraction=color1.weight/(color0.weight+color1.weight)
+        if fraction<0.5:
+            return characters[int(fraction*2*10)]
+        return " "
 
-for ya in range(0,size[1],sampleSize[1]):
-    line=""
-    for xa in range(0,size[0],sampleSize[0]):
-        color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-        line+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background=color1.getBackground())
-        line+=selectchar(characters, color0, color1)
-    line+="\n"
-    outputContent.append(line)
-    # if display:
-    print(line,end="")
+    print("Original Size:",size[0],size[1],"px")
+    print("ANSI Size:",math.ceil(size[0]/sampleParameters["sampleSize"][0]),math.ceil(size[1]//sampleParameters["sampleSize"][1]),"chr")
 
-if outputFile!=None:
-    with open(outputFile,"w") as f:
-        for line in outputContent:
-            f.write(line)
+    for ya in range(0,size[1],sampleParameters["sampleSize"][1]):
+        line=""
+        for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
+            color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
+            line+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background=color1.getBackground())
+            line+=selectchar(characters, color0, color1)
+        line+="\n"
+        outputContent.append(line)
+        if display:
+            print(line,end="")
 
-print("\033[0mConverstion Time:",time.time()-startTime,"s")
+    if outputFile!=None:
+        with open(outputFile,"w") as f:
+            for line in outputContent:
+                f.write(line)
+
+    print("\033[0mConverstion Time:",time.time()-startTime,"s")
