@@ -4,8 +4,6 @@ import time
 import math
 from utils import paletteUtils
 
-startTime=time.time()
-
 ArgumentDefaultsValues={
     "filename":"image.png",
     "contrast":1,
@@ -256,6 +254,8 @@ def find_closest_colorPoint(palette,targetPoint):
     return closestPoint, min_d
                 
 if __name__ == "__main__":
+    startTime=time.time()
+
     img = Image.open(arguments.filename)
     imgpx = img.load()
     size=img.size
@@ -280,7 +280,7 @@ if __name__ == "__main__":
         line=""
         for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-            line+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background=color1.getBackground())
+            line+=palette.pattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
             line+=selectchar(characters, color0, color1)
         line+="\n"
         outputContent.append(line)
