@@ -4,32 +4,6 @@ import time
 import math
 from utils import paletteUtils
 
-ArgumentDefaultsValues={
-    "filename":"image.png",
-    "contrast":1,
-    "sampleSize":"16x16",
-    "contrastbreak":128,
-    "output":None,
-    "blur":30,
-    "palettename":None,
-    "display":True
-}
-
-#parse cli arguments
-parser=argparse.ArgumentParser(
-    prog="Image to ANSI converter"
-)
-
-parser.add_argument("-f","--filename",default=ArgumentDefaultsValues["filename"],help="Filepath to your image, the default image name is image.png")
-parser.add_argument("-c","--contrast",default=ArgumentDefaultsValues["contrast"],help="allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)")
-parser.add_argument("-s","--sampleSize",default=ArgumentDefaultsValues["sampleSize"],help="Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X")
-parser.add_argument("-cb","--contrastbreak",default=ArgumentDefaultsValues["contrastbreak"],help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
-parser.add_argument("-o","--output",default=ArgumentDefaultsValues["output"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
-parser.add_argument("-b","--blur",default=ArgumentDefaultsValues["blur"],help="Blurs a furhter range of colors")
-parser.add_argument("-p","--palettename",default=ArgumentDefaultsValues["palettename"],help="Enter name of the pallete from palettes or file path")
-parser.add_argument("-d","--display", action='store_const',const=False, default=ArgumentDefaultsValues["display"], help="if true (default) will display the image as it is being generated")
-arguments=parser.parse_args()
-
 class ColorPalette: #TODO the pattern probably needs some standartisation
     def __init__(self):
         self.pattern="{ESC}[{foreground}m{ESC}[{background}m"
@@ -108,6 +82,12 @@ def parseParameters(arguments):
     if palettename!=None:
         paletteUtils.loadPalette(palettename,palette,ColorPoint)
 
+    characters=arguments.characters
+    characterfile=arguments.characterfile
+    if characterfile!=None:
+        with open(characterfile,"r") as f:
+            characters=f.read().strip("\n")
+
     sampleParameters = {
         "sampleSize" : sampleSize,
         "contrast" : float(arguments.contrast),
@@ -115,7 +95,7 @@ def parseParameters(arguments):
         "blur" : int(arguments.blur)**3,
     }
 
-    return sampleParameters, palette
+    return sampleParameters, palette, characters
 
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
@@ -253,7 +233,42 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
+def selectchar(characters,color0,color1):
+        fraction=color1.weight/(color0.weight+color1.weight)*2
+        return characters[round(fraction*(len(characters)-1))]
+
 if __name__ == "__main__":
+
+    ArgumentDefaultsValues={
+        "filename":"image.png",
+        "contrast":1,
+        "sampleSize":"16x16",
+        "contrastbreak":128,
+        "output":None,
+        "blur":30,
+        "palettename":None,
+        "display":True,
+        "characters":"\'^:!=*$%@#",
+        "characterfile":None
+    }
+
+    #parse cli arguments
+    parser=argparse.ArgumentParser(
+        prog="Image to ANSI converter"
+    )
+
+    parser.add_argument("-f","--filename",default=ArgumentDefaultsValues["filename"],help="Filepath to your image, the default image name is image.png")
+    parser.add_argument("-c","--contrast",default=ArgumentDefaultsValues["contrast"],help="allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)")
+    parser.add_argument("-s","--sampleSize",default=ArgumentDefaultsValues["sampleSize"],help="Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X")
+    parser.add_argument("-cb","--contrastbreak",default=ArgumentDefaultsValues["contrastbreak"],help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
+    parser.add_argument("-o","--output",default=ArgumentDefaultsValues["output"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
+    parser.add_argument("-b","--blur",default=ArgumentDefaultsValues["blur"],help="Blurs a furhter range of colors")
+    parser.add_argument("-p","--palettename",default=ArgumentDefaultsValues["palettename"],help="Enter name of the pallete from palettes or file path")
+    parser.add_argument("--hide", action='store_const',const=False, default=ArgumentDefaultsValues["display"], help="if false (default) will display the image as it is being generated")
+    parser.add_argument("-char","--characters", default=ArgumentDefaultsValues["characters"], help="enter characters")
+    parser.add_argument("-charf","--characterfile", default=ArgumentDefaultsValues["characterfile"], help="enter characters")
+    arguments=parser.parse_args()
+
     startTime=time.time()
 
     img = Image.open(arguments.filename)
@@ -262,16 +277,9 @@ if __name__ == "__main__":
 
     outputFile=arguments.output
     outputContent=[]
-    display=arguments.display
+    hide=arguments.hide
 
-    sampleParameters, palette = parseParameters(arguments)
-
-    characters="\'^:!=*$%@#" #TODO improve character settings
-    def selectchar(characters,color0,color1):
-        fraction=color1.weight/(color0.weight+color1.weight)
-        if fraction<0.5:
-            return characters[int(fraction*2*10)]
-        return " "
+    sampleParameters, palette, characters = parseParameters(arguments)
 
     print("Original Size:",size[0],size[1],"px")
     print("ANSI Size:",math.ceil(size[0]/sampleParameters["sampleSize"][0]),math.ceil(size[1]//sampleParameters["sampleSize"][1]),"chr")
@@ -284,7 +292,7 @@ if __name__ == "__main__":
             line+=selectchar(characters, color0, color1)
         line+="\n"
         outputContent.append(line)
-        if display:
+        if hide:
             print(line,end="")
 
     if outputFile!=None:
