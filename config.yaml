@@ -1,0 +1,11 @@
+ArgParserArguments:
+  filename: image.png
+  contrast: 1
+  sampleSize: 16x16
+  contrastbreak: 128
+  output: null
+  blur: 30
+  palettename: null
+  display: True
+  characters: \'^:!=*$%@#
+  characterfile: null

@@ -1,10 +1,10 @@
-import argparse
 from PIL import Image
 import time
 import math
-from utils import paletteUtils
+import yaml
+from utils import paletteUtils, cliparser
 
-class ColorPalette: #TODO the pattern probably needs some standartisation
+class ColorPalette:
     def __init__(self):
         self.pattern="{ESC}[{foreground}m{ESC}[{background}m"
         self.colorPoints=[]
@@ -15,21 +15,21 @@ class ColorPalette: #TODO the pattern probably needs some standartisation
 
     def addpoint(self,point):
         self.colorPoints.append(point)
-        self.Raxis.insert(self.search(self.Raxis,point.r,get_val_funk=lambda o: o.r),point)
-        self.Gaxis.insert(self.search(self.Gaxis,point.g,get_val_funk=lambda o: o.g),point)
-        self.Baxis.insert(self.search(self.Baxis,point.b,get_val_funk=lambda o: o.b),point)
+        self.Raxis.insert(self.search(self.Raxis,point.r,key=lambda o: o.r),point)
+        self.Gaxis.insert(self.search(self.Gaxis,point.g,key=lambda o: o.g),point)
+        self.Baxis.insert(self.search(self.Baxis,point.b,key=lambda o: o.b),point)
     
-    def search(self,axis,target,start=0,end=-1,get_val_funk=lambda o: o.r): #TODO can be improved
+    def search(self,axis,target,start=0,end=-1,key=lambda o: o.r): #TODO can be improved
         #< target is a numeral
         #binary search to locate the position a point is on the axies
         if end==-1:
             end=len(axis)
         if start==end:
             return start
-        elif target>get_val_funk(axis[(start+end)//2]):
-            return self.search(axis,target,(start+end)//2+1,end,get_val_funk)
+        elif target>key(axis[(start+end)//2]):
+            return self.search(axis,target,(start+end)//2+1,end,key)
         else:
-            return self.search(axis,target,start,(start+end)//2,get_val_funk)
+            return self.search(axis,target,start,(start+end)//2,key)
 
     def ground(self):
         for point in self.colorPoints:
@@ -125,16 +125,19 @@ def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
                             closestPoint.weight+=1
                     else:
                         palette.addpoint(newPoint)
-    #find greatest 2
-    maxI=len(palette.colorPoints)-1
+
+    return find_greatest_2_colors(palette.colorPoints)
+
+def find_greatest_2_colors(colorPoints):
+    maxI=len(colorPoints)-1
     secondMaxI=0
-    for i in range(len(palette.colorPoints)):
-        if palette.colorPoints[maxI].weight<palette.colorPoints[i].weight:
+    for i in range(len(colorPoints)):
+        if colorPoints[maxI].weight<colorPoints[i].weight:
             secondMaxI=maxI
             maxI=i
-        elif palette.colorPoints[secondMaxI].weight<palette.colorPoints[i].weight:
+        elif colorPoints[secondMaxI].weight<colorPoints[i].weight:
             secondMaxI=i
-    return palette.colorPoints[maxI], palette.colorPoints[secondMaxI]
+    return colorPoints[maxI], colorPoints[secondMaxI]
 
 def calculate_distance(point0,point1):
     d=0
@@ -154,11 +157,11 @@ def find_closest_colorPoint(palette,targetPoint):
     After choosing a random point as the "closest so far"
     The furthest a potential closer point could be is directly on a cordinal line less then the distance you already got.
     """
-    rpi=palette.search(palette.Raxis,targetPoint.r,get_val_funk=lambda o: o.r)
+    rpi=palette.search(palette.Raxis,targetPoint.r,key=lambda o: o.r)
     rmi=rpi-1
-    gpi=palette.search(palette.Raxis,targetPoint.g,get_val_funk=lambda o: o.g)
+    gpi=palette.search(palette.Raxis,targetPoint.g,key=lambda o: o.g)
     gmi=gpi-1
-    bpi=palette.search(palette.Raxis,targetPoint.b,get_val_funk=lambda o: o.b)
+    bpi=palette.search(palette.Raxis,targetPoint.b,key=lambda o: o.b)
     bmi=bpi-1
     min_d=800
     closestPoint=None
@@ -238,36 +241,9 @@ def selectchar(characters,color0,color1):
         return characters[round(fraction*(len(characters)-1))]
 
 if __name__ == "__main__":
-
-    ArgumentDefaultsValues={
-        "filename":"image.png",
-        "contrast":1,
-        "sampleSize":"16x16",
-        "contrastbreak":128,
-        "output":None,
-        "blur":30,
-        "palettename":None,
-        "display":True,
-        "characters":"\'^:!=*$%@#",
-        "characterfile":None
-    }
-
-    #parse cli arguments
-    parser=argparse.ArgumentParser(
-        prog="Image to ANSI converter"
-    )
-
-    parser.add_argument("-f","--filename",default=ArgumentDefaultsValues["filename"],help="Filepath to your image, the default image name is image.png")
-    parser.add_argument("-c","--contrast",default=ArgumentDefaultsValues["contrast"],help="allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)")
-    parser.add_argument("-s","--sampleSize",default=ArgumentDefaultsValues["sampleSize"],help="Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X")
-    parser.add_argument("-cb","--contrastbreak",default=ArgumentDefaultsValues["contrastbreak"],help="Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)")
-    parser.add_argument("-o","--output",default=ArgumentDefaultsValues["output"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
-    parser.add_argument("-b","--blur",default=ArgumentDefaultsValues["blur"],help="Blurs a furhter range of colors")
-    parser.add_argument("-p","--palettename",default=ArgumentDefaultsValues["palettename"],help="Enter name of the pallete from palettes or file path")
-    parser.add_argument("--hide", action='store_const',const=False, default=ArgumentDefaultsValues["display"], help="if false (default) will display the image as it is being generated")
-    parser.add_argument("-char","--characters", default=ArgumentDefaultsValues["characters"], help="enter characters")
-    parser.add_argument("-charf","--characterfile", default=ArgumentDefaultsValues["characterfile"], help="enter characters")
-    arguments=parser.parse_args()
+    with open("config.yaml","r") as f:
+        config=yaml.safe_load(f)
+    arguments=cliparser.parse(config["ArgParserArguments"])
 
     startTime=time.time()
 
