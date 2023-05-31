@@ -9,3 +9,6 @@ ArgParserArguments:
   display: True
   characters: \'^:!=*$%@#
   characterfile: null
+
+  foreground: True
+  background: True

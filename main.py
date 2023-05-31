@@ -57,7 +57,7 @@ class ColorPoint:
     
     def setContrast(self,contrast,contrastbreak):
         if contrast!=1:
-            if 0.33*self.r+0.5*self.g+0.16*self.b>contrastbreak:
+            if self.getBrightness()>contrastbreak:
                 self.r=min(int(self.r*contrast),255)
                 self.g=min(int(self.g*contrast),255)
                 self.b=min(int(self.b*contrast),255)
@@ -65,6 +65,10 @@ class ColorPoint:
                 self.r=min(int(self.r/contrast),255)
                 self.g=min(int(self.g/contrast),255)
                 self.b=min(int(self.b/contrast),255)
+            
+    def getBrightness(self):
+        self.brightness=0.33*self.r+0.5*self.g+0.16*self.b
+        return self.brightness
 
 
 def parseParameters(arguments):
@@ -82,6 +86,7 @@ def parseParameters(arguments):
     if palettename!=None:
         paletteUtils.loadPalette(palettename,palette,ColorPoint)
 
+    #characters
     characters=arguments.characters
     characterfile=arguments.characterfile
     if characterfile!=None:
@@ -236,9 +241,23 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
-def selectchar(characters,color0,color1):
-        fraction=color1.weight/(color0.weight+color1.weight)*2
-        return characters[round(fraction*(len(characters)-1))]
+def generatePixel(characters,color0,color1,foreground,background):
+        pixel=""
+        fraction_0=color0.weight/(color0.weight+color1.weight)
+        fraction_1=1-fraction_0
+        #FIXME mix pattern formatting and this mess
+        if foreground and background:
+            pixel+=palette.pattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
+            pixel+=characters[round(fraction_1*2*(len(characters)-1))]
+        elif foreground: #TODO make the foreground symbol deduction from percentage from sample size
+            pixel+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background="23") #FIXME anything put into background will reset the color
+            pixel+=characters[round((fraction_0-0.5)*2*(len(characters)-1))]
+        elif background:
+            pixel+=palette.pattern.format(ESC="\033",foreground=color0.getBackground(),background=color0.getBackground())
+            pixel+=" "
+        else:
+            pixel+=" "
+        return pixel
 
 if __name__ == "__main__":
     with open("config.yaml","r") as f:
@@ -255,6 +274,9 @@ if __name__ == "__main__":
     outputContent=[]
     hide=arguments.hide
 
+    foreground = arguments.foreground
+    background = arguments.background
+
     sampleParameters, palette, characters = parseParameters(arguments)
 
     print("Original Size:",size[0],size[1],"px")
@@ -264,8 +286,7 @@ if __name__ == "__main__":
         line=""
         for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-            line+=palette.pattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
-            line+=selectchar(characters, color0, color1)
+            line+=generatePixel(characters, color0, color1, foreground, background)
         line+="\n"
         outputContent.append(line)
         if hide:

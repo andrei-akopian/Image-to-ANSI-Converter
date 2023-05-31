@@ -52,3 +52,6 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] make "setsize" instead of sampleSize- it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
 - [ ] better character sets
+- [ ] add nocolor
+- [ ] pattern is very wonky in for the foreground and background only features
+- [ ] add bold, italic etc. 
