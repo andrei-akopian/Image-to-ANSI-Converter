@@ -306,15 +306,15 @@ if __name__ == "__main__":
     print("Original Size:",size[0],size[1],"px")
     print("ANSI Size:",math.ceil(size[0]/sampleParameters["sampleSize"][0]),math.ceil(size[1]//sampleParameters["sampleSize"][1]),"chr")
 
+    defualt_line=""
+
     if type(background)==str:
-        if outputFile!=None:
-            outputContent.append(palette.monopattern.format(color=background,ESC="\033"))
         if not(hide):
-            print(palette.monopattern.format(color=background,ESC="\033"))
+            default_line=palette.monopattern.format(color=background,ESC="\033")
 
     for ya in range(0,size[1],sampleParameters["sampleSize"][1]):
         #TODO rewrite line to be a list
-        line=""
+        line=defualt_line
         for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
             line+=generatePixel(characters, color0, color1, foreground, background, sampleParameters["sampleSize"])
@@ -322,7 +322,7 @@ if __name__ == "__main__":
         outputContent.append(line) #TODO put a conditional here
     #complex printing stuff
         if not(hide):
-            print(line,end="")
+            print(line,end="\033[0m")
         #if the output is hidden -> show percentages
         else:
             print(f"\r{str(round((ya/size[1])*100,1))}%",end="")
