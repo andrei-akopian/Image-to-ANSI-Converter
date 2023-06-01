@@ -6,7 +6,7 @@ def parse(ArgsParserArguments): #TODO rewrite it so that all the parameters can 
     )
 
     parser.add_argument("-f","--filename",default=ArgsParserArguments["filename"],help="Filepath to your image, the default image name is image.png")
-    parser.add_argument("-o","--output",default=ArgsParserArguments["output"]["default"],const=ArgsParserArguments["output"]["const"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors",nargs='?')
+    parser.add_argument("-o","--output",nargs='?',default=ArgsParserArguments["output"]["default"],const=ArgsParserArguments["output"]["const"],help="Specify output file it can be then displayed with `cat output.txt` with all the colors")
 
     parser.add_argument("-c","--contrast",default=ArgsParserArguments["contrast"],help="allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)")
     parser.add_argument("-s","--sampleSize",default=ArgsParserArguments["sampleSize"],help="Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X")
@@ -16,7 +16,7 @@ def parse(ArgsParserArguments): #TODO rewrite it so that all the parameters can 
     parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"], help="if false (default) will display the image as it is being generated")
     parser.add_argument("-char","--characters", default=ArgsParserArguments["characters"], help="enter characters")
     parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"], help="enter filepath/name with the characters")
-    parser.add_argument("-nfg","--noforeground", action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"], help="Doesn't display any foreground colors/symbols")
-    parser.add_argument("-nbg","--nobackground", action='store_const',const=False, dest="background", default=ArgsParserArguments["foreground"], help="Doesn't display any background colors, bg colors will transition into foreground")
+    parser.add_argument("-nfg","--noforeground",action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"], help="Doesn't display any foreground colors/symbols")
+    parser.add_argument("-nbg","--nobackground",nargs='?',default=ArgsParserArguments["foreground"],const=False, dest="background", help="Doesn't display any background colors, bg colors will transition into foreground")
 
     return parser.parse_args()
