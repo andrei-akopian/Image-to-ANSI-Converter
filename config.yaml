@@ -1,14 +1,15 @@
-ArgParserArguments:
+Arguments:
   filename: image.png
   contrast: 1
   sampleSize: 16x16
   contrastbreak: 128
-  output: null
+  output: 
+    default: null
+    const: output.txt
   blur: 30
   palettename: null
-  display: True
+  hide: False
   characters: \'^:!=*$%@#
   characterfile: null
-
   foreground: True
   background: True

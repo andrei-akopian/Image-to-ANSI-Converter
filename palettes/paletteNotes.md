@@ -3,7 +3,8 @@
 Notate as json:
 ```json
 {
-    "pattern" : "{ESC}[{foreground}m{ESC}[{background}m",
+    "monopattern" : "{ESC}[{color}m",
+    "duopattern" : "{ESC}[{foreground}m{ESC}[{background}m",
     "palette" : [
         ["foreground","background",[0,0,0]]
     ]

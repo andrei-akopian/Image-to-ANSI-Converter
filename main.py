@@ -6,7 +6,8 @@ from utils import paletteUtils, cliparser
 
 class ColorPalette:
     def __init__(self):
-        self.pattern="{ESC}[{foreground}m{ESC}[{background}m"
+        self.monopattern="{ESC}[{color}m"
+        self.duopattern="{ESC}[{foreground}m{ESC}[{background}m"
         self.colorPoints=[]
         self.Raxis=[]
         self.Gaxis=[]
@@ -35,6 +36,20 @@ class ColorPalette:
         for point in self.colorPoints:
             point.weight=1
 
+    def fillPattern(self,fgcolor=None,bgcolor=None,ESC="\033"):
+        #neighter
+        if fgcolor==None and bgcolor==None:
+            return ""
+        #foreground only
+        elif fgcolor==None:
+            return self.monopattern.format(color=fgcolor,ESC=ESC)
+        #background only
+        elif bgcolor==None:
+            return self.monopattern.format(color=bgcolor,ESC=ESC)
+        else:
+            return self.duopattern.format(foreground=fgcolor,background=bgcolor,ESC=ESC)
+
+
 
 class ColorPoint:
     def __init__(self,color):
@@ -44,6 +59,7 @@ class ColorPoint:
         self.weight=1
         self.foreground=""
         self.background=""
+
     def getForeground(self):
         if self.foreground=="":
             return "38;2;"+str(self.r)+";"+str(self.g)+";"+str(self.b)
@@ -241,28 +257,30 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
-def generatePixel(characters,color0,color1,foreground,background):
+def generatePixel(characters,color0,color1,foreground,background,sampleSize):
         pixel=""
         fraction_0=color0.weight/(color0.weight+color1.weight)
         fraction_1=1-fraction_0
         #FIXME mix pattern formatting and this mess
         if foreground and background:
-            pixel+=palette.pattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
+            pixel+=palette.duopattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
             pixel+=characters[round(fraction_1*2*(len(characters)-1))]
-        elif foreground: #TODO make the foreground symbol deduction from percentage from sample size
-            pixel+=palette.pattern.format(ESC="\033",foreground=color0.getForeground(),background="23") #FIXME anything put into background will reset the color
-            pixel+=characters[round((fraction_0-0.5)*2*(len(characters)-1))]
+        elif foreground:
+            fraction_from_sample=color0.weight/(sampleSize[0]*sampleSize[1])
+            pixel+=palette.monopattern.format(ESC="\033",color=color0.getForeground())
+            pixel+=characters[round((fraction_from_sample-0.5)*2*(len(characters)-1))]
         elif background:
-            pixel+=palette.pattern.format(ESC="\033",foreground=color0.getBackground(),background=color0.getBackground())
+            pixel+=palette.monopattern.format(ESC="\033",color=color0.getBackground())
             pixel+=" "
         else:
             pixel+=" "
         return pixel
 
 if __name__ == "__main__":
+    #pre loading/parsing arguments and configs
     with open("config.yaml","r") as f:
         config=yaml.safe_load(f)
-    arguments=cliparser.parse(config["ArgParserArguments"])
+    arguments=cliparser.parse(config["Arguments"])
 
     startTime=time.time()
 
@@ -274,11 +292,16 @@ if __name__ == "__main__":
     outputContent=[]
     hide=arguments.hide
 
+    if hide and outputFile==None:
+        print("No output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
+        exit()
+
     foreground = arguments.foreground
     background = arguments.background
 
     sampleParameters, palette, characters = parseParameters(arguments)
 
+    #doing the conversion
     print("Original Size:",size[0],size[1],"px")
     print("ANSI Size:",math.ceil(size[0]/sampleParameters["sampleSize"][0]),math.ceil(size[1]//sampleParameters["sampleSize"][1]),"chr")
 
@@ -286,15 +309,25 @@ if __name__ == "__main__":
         line=""
         for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-            line+=generatePixel(characters, color0, color1, foreground, background)
+            line+=generatePixel(characters, color0, color1, foreground, background, sampleParameters["sampleSize"])
         line+="\n"
-        outputContent.append(line)
-        if hide:
+        outputContent.append(line) #TODO put a conditional on that
+    #complex printing stuff
+        if not(hide):
             print(line,end="")
+        #if the output is hidden -> show percentages
+        else:
+            print(f"\r{str(round((ya/size[1])*100,1))}%",end="")
+    if hide:
+        print("\rDone   ")
 
+    #save output to file
     if outputFile!=None:
+        if not('.' in outputFile):
+            outputFile+='.txt'
         with open(outputFile,"w") as f:
             for line in outputContent:
                 f.write(line)
+        print("Saved output to\033[1m",outputFile,"\033[0m")
 
     print("\033[0mConverstion Time:",time.time()-startTime,"s")

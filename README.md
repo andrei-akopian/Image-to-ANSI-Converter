@@ -46,7 +46,6 @@ Starry Night by Vincent van Gogh with 1.2 contrast and 80 contrast break and sam
 Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/media/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg)
 
 ## TODO
-- [ ] add forground or background only
 - [ ] make better output file handler (file formats)
 - [ ] improve contrast algorithm
 - [ ] make "setsize" instead of sampleSize- it is not user friendly

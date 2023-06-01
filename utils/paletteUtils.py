@@ -9,7 +9,8 @@ def loadPalette(palettename,palette,ColorPoint):
         data=json.load(f)
     #create palette
     palette.muteable=False
-    palette.pattern=data["pattern"]
+    palette.monopattern=data["monopattern"]
+    palette.duopattern=data["monopattern"]
     for cp in data["colors"]:
         palette.addpoint(ColorPoint(cp[2]))
         palette.colorPoints[-1].foreground=cp[0]
