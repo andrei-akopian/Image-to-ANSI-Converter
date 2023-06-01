@@ -1,5 +1,6 @@
 {
-    "pattern": "{ESC}[38:5:{foreground}m{ESC}[48:5:{background}m",
+    "monopattern": "{ESC}[38:5:{foreground}m{ESC}[48:5:{background}m",
+    "duopattern": "{ESC}[38:5:{foreground}m{ESC}[48:5:{background}m",
     "colors": [
         ["0", "0", [0, 0, 0]],
         ["1", "1", [128, 0, 0]],

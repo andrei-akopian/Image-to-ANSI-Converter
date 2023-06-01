@@ -17,11 +17,21 @@ I haven't made any advanced setup, so you will have to download a zip of the rep
 ### Use
 Type `python3 main.py -h` into the commandline to display the help message.
 
-Here is a summery of the commandline arguments:
+**Here is a summery of the commandline arguments:**
+
+**Basic**
 
 `-f --filename` is the filepath to your image, the default image name is image.png.
 
 `-s --sampleSize` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
+
+**Save to a file**
+
+`-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
+
+`--hide` will prevent the program from printing into the commandline, if you use `--hide` then also use `-o` to save the output
+
+**Manipulated**
 
 `-c --contrast` allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)
 
@@ -29,9 +39,13 @@ Here is a summery of the commandline arguments:
 
 `-b --blur` makes a wider range of colors blend into one. (0-765, 0-200 recomended)
 
-`-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
+**Apperance**
 
-`--hide` will prevent the program from printing into the commandline, if you use `--hide` then also use `-o` to save the output
+`-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are in the palettes folder.
+
+`-char --characters` enter string of characters to be used in the art instead of the default one sorted light to dark.
+
+`-charf --characterfile` enter filename.txt with characters to be used sorted light to dark.
 
 ## Palettes
 Pallets allow the image to be created using a specific palette. Combined with contrast breaks it can allow to make nice images. It also has an option for specific patterns, those can be used to manipulate the program into outputing a file formatted into something not associated with ANSI.

@@ -1,4 +1,5 @@
 #TODO change naming in 4-bit to match Wikipedia 4 bit color names
+#FIXME the patterns in the palette files are a mess
 
 Notate as json:
 ```json
