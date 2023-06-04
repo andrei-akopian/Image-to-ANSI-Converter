@@ -13,6 +13,8 @@ class ColorPalette:
         self.Gaxis=[]
         self.Baxis=[]
         self.muteable=True
+        self.foreground_prefix="38;2;"
+        self.background_prefix="48;2;"
 
     def addpoint(self,point):
         self.colorPoints.append(point)
@@ -62,12 +64,12 @@ class ColorPoint:
 
     def getForeground(self):
         if self.foreground=="":
-            return "38;2;"+str(self.r)+";"+str(self.g)+";"+str(self.b)
+            return str(self.r)+";"+str(self.g)+";"+str(self.b)
         else:
             return self.foreground
     def getBackground(self):
         if self.background=="":
-            return "48;2;"+str(self.r)+";"+str(self.g)+";"+str(self.b)
+            return str(self.r)+";"+str(self.g)+";"+str(self.b)
         else:
             return self.background
     
@@ -96,7 +98,7 @@ def parseParameters(arguments):
         sampleSize=int(sampleSize)
         sampleSize=[sampleSize,sampleSize]
 
-    # Palettes logic
+    #Create/load palette
     palettename=arguments.palettename
     palette=ColorPalette()
     if palettename!=None:
@@ -257,20 +259,20 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
-def generatePixel(characters,color0,color1,foreground,background,sampleSize):
+def generatePixel(palette,characters,color0,color1,foreground,background,sampleSize):
         pixel=""
         fraction_0=color0.weight/(color0.weight+color1.weight)
         fraction_1=1-fraction_0
         #FIXME mix pattern formatting and this mess
         if foreground==True and background==True:
-            pixel+=palette.duopattern.format(ESC="\033",foreground=color1.getForeground(),background=color0.getBackground())
+            pixel+=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+color1.getForeground(),background=palette.background_prefix+color0.getBackground())
             pixel+=characters[round(fraction_1*2*(len(characters)-1))]
         elif foreground==True:
             fraction_from_sample=color0.weight/(sampleSize[0]*sampleSize[1])
-            pixel+=palette.monopattern.format(ESC="\033",color=color0.getForeground())
+            pixel+=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+color0.getForeground())
             pixel+=characters[round((fraction_from_sample-0.5)*2*(len(characters)-1))]
         elif background:
-            pixel+=palette.monopattern.format(ESC="\033",color=color0.getBackground())
+            pixel+=palette.monopattern.format(ESC="\033",color=palette.background_prefix+color0.getBackground())
             pixel+=" "
         else:
             pixel+=" "
@@ -288,12 +290,12 @@ if __name__ == "__main__":
     imgpx = img.load()
     size=img.size
 
-    outputFile=arguments.output
+    outputFile=arguments.output #None or string
     outputContent=[]
-    hide=arguments.hide
+    hide=arguments.hide #bool
 
-    foreground = arguments.foreground
-    background = arguments.background
+    foreground = arguments.foreground #bool
+    background = arguments.background #bool or string with color code
 
     sampleParameters, palette, characters = parseParameters(arguments)
 
@@ -317,7 +319,7 @@ if __name__ == "__main__":
         line=defualt_line
         for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-            line+=generatePixel(characters, color0, color1, foreground, background, sampleParameters["sampleSize"])
+            line+=generatePixel(palette,characters, color0, color1, foreground, background, sampleParameters["sampleSize"])
         line+="\n"
         outputContent.append(line) #TODO put a conditional here
     #complex printing stuff

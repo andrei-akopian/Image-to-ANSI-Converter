@@ -10,11 +10,12 @@ def loadPalette(palettename,palette,ColorPoint):
     #create palette
     palette.muteable=False
     palette.monopattern=data["monopattern"]
-    palette.duopattern=data["monopattern"]
+    palette.duopattern=data["duopattern"]
+    palette.foreground_prefix=data["foreground_prefix"]
+    palette.background_prefix=data["background_prefix"]
     for cp in data["colors"]:
         palette.addpoint(ColorPoint(cp[2]))
         palette.colorPoints[-1].foreground=cp[0]
         palette.colorPoints[-1].background=cp[1]
-
     return palette
 

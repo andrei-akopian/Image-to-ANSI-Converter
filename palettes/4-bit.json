@@ -1,6 +1,8 @@
 {
     "monopattern": "{ESC}[{color}m",
     "duopattern": "{ESC}[{foreground};{background}m",
+    "foreground_prefix": "",
+    "background_prefix": "",
     "colors": [
         ["30", "40", [0, 0, 0]],
         ["31", "41", [128, 0, 0]],

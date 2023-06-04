@@ -6,7 +6,7 @@ A tool for converting images into [ANSI](https://en.wikipedia.org/wiki/ANSI_esca
 - baisic knowledge of terminals, filepaths and commandline argument usage.
 - Python [Pillow](https://pillow.readthedocs.io/en/stable/) library
 - Image in a format that Pillow can open (`.png .jpg .jpeg`)
-- Square font, you need a font that is the same size vertically and horizaontally: [SQUARE](https://strlen.com/square/) [Square One](https://www.dafont.com/square-one.font) 
+- Square font, you need a font that is the same size vertically and horizaontally: [SQUARE](https://strlen.com/square/) or [Square One](https://www.dafont.com/square-one.font) 
 
 ## Usage
 As I said, you can use the program entirely form the commandline.
@@ -46,6 +46,10 @@ Type `python3 main.py -h` into the commandline to display the help message.
 `-char --characters` enter string of characters to be used in the art instead of the default one sorted light to dark.
 
 `-charf --characterfile` enter filename.txt with characters to be used sorted light to dark.
+
+`-nbg --nobackground` creates an image with only the symbols colored. A custom background color can be entered eg: `-nbg=255;255;255`.
+
+`-nfg --noforeground` creates an image without symbols, only background pixels
 
 ## Palettes
 Pallets allow the image to be created using a specific palette. Combined with contrast breaks it can allow to make nice images. It also has an option for specific patterns, those can be used to manipulate the program into outputing a file formatted into something not associated with ANSI.
