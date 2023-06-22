@@ -74,6 +74,7 @@ class ColorPoint:
         self.weight=1
         self.foreground=""
         self.background=""
+        self.is_filter=0
 
     def getForeground(self):
         if self.foreground=="":

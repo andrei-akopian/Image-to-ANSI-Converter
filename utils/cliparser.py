@@ -16,7 +16,7 @@ def parse(ArgsParserArguments): #TODO rewrite it so that all the parameters can 
     parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
     parser.add_argument("-p","--palettename",default=ArgsParserArguments["palettename"]["default"],help=ArgsParserArguments["palettename"]["help"])
     parser.add_argument("-char","--characters", default=ArgsParserArguments["characters"]["default"], help=ArgsParserArguments["characters"]["help"])
-    parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"]["help"], help=ArgsParserArguments["characterfile"]["help"])
+    parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"]["default"], help=ArgsParserArguments["characterfile"]["help"])
     parser.add_argument("-nfg","--noforeground",action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"]["default"], help=ArgsParserArguments["background"]["help"])
     parser.add_argument("-nbg","--nobackground",nargs='?',default=ArgsParserArguments["foreground"]["default"],const=False, dest="background", help=ArgsParserArguments["foreground"]["help"])
 

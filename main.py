@@ -1,8 +1,6 @@
 from PIL import Image
-import time
-import math
 import yaml
-from utils import colorUtils, cliparser
+from utils import colorUtils, cliparser, outputUtils, debugInfoUtils
 
 def parseParameters(arguments):
     #sample size
@@ -26,14 +24,22 @@ def parseParameters(arguments):
         with open(characterfile,"r") as f:
             characters=f.read().strip("\n")
 
-    sampleParameters = {
+    sample_parameters = {
         "sampleSize" : sampleSize,
         "contrast" : float(arguments.contrast),
         "contrastbreak" : int(arguments.contrastbreak),
         "blur" : int(arguments.blur)**3,
     }
 
-    return sampleParameters, palette, characters
+    output_parameters = {
+        "characters" : characters,
+        "outputFile" : arguments.output, #None or string
+        "hide" : arguments.hide, #bool
+        "foreground" : arguments.foreground, #bool
+        "background" : arguments.background #bool or string with color code
+    }
+
+    return sample_parameters, palette, output_parameters
 
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
@@ -174,54 +180,31 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
                 
-def generatePixel(palette,characters,color0,color1,foreground,background,sampleSize):
-        pixel=""
-        fraction_0=color0.weight/(color0.weight+color1.weight)
-        fraction_1=1-fraction_0
-        #FIXME mix pattern formatting and this mess
-        if foreground==True and background==True:
-            pixel+=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+color1.getForeground(),background=palette.background_prefix+color0.getBackground())
-            pixel+=characters[round(fraction_1*2*(len(characters)-1))]
-        elif foreground==True:
-            fraction_from_sample=color0.weight/(sampleSize[0]*sampleSize[1])
-            pixel+=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+color0.getForeground())
-            pixel+=characters[round((fraction_from_sample-0.5)*2*(len(characters)-1))]
-        elif background:
-            pixel+=palette.monopattern.format(ESC="\033",color=palette.background_prefix+color0.getBackground())
-            pixel+=" "
-        else:
-            pixel+=" "
-        return pixel
-
 if __name__ == "__main__":
     #pre loading/parsing arguments and configs
     with open("config.yaml","r") as f:
         config=yaml.safe_load(f)
     arguments=cliparser.parse(config["Arguments"])
 
-    startTime=time.time()
+    debug_InfoMenager=debugInfoUtils.DebugInfoManager()
+    debug_InfoMenager.stampStartTime()
 
     img = Image.open(arguments.filename)
     imgpx = img.load()
     size=img.size
 
-    outputFile=arguments.output #None or string
-    outputContent=[]
-    hide=arguments.hide #bool
+    sample_parameters, palette, output_parameters = parseParameters(arguments)
 
-    foreground = arguments.foreground #bool
-    background = arguments.background #bool or string with color code
+    output_Manager=outputUtils.OutputManager(output_parameters)
 
-    sampleParameters, palette, characters = parseParameters(arguments)
-
-    if hide:
-        if outputFile==None:
+    if output_parameters["hide"]:
+        if output_parameters["outputFile"]==None:
             print("No output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
             exit()
 
     #doing the conversion
-    print("Original Size:",size[0],size[1],"px")
-    print("ANSI Size:",math.ceil(size[0]/sampleParameters["sampleSize"][0]),math.ceil(size[1]//sampleParameters["sampleSize"][1]),"chr")
+    debug_InfoMenager.printImageSize(size)
+    debug_InfoMenager.printNewImageSize(size,sample_parameters["sampleSize"])
 
     defualt_line=""
 
@@ -229,14 +212,15 @@ if __name__ == "__main__":
         if not(hide):
             default_line=palette.monopattern.format(color=background,ESC="\033")
 
-    for ya in range(0,size[1],sampleParameters["sampleSize"][1]):
+    for ya in range(0,size[1],sample_parameters["sampleSize"][1]):
         #TODO rewrite line to be a list
         line=defualt_line
-        for xa in range(0,size[0],sampleParameters["sampleSize"][0]):
-            color0, color1=sample(imgpx,xa,ya,**sampleParameters,palette=palette)
-            line+=generatePixel(palette,characters, color0, color1, foreground, background, sampleParameters["sampleSize"])
+        for xa in range(0,size[0],sample_parameters["sampleSize"][0]):
+            color0, color1=sample(imgpx,xa,ya,**sample_parameters,palette=palette)
+            line+=outputUtils.generatePixel(palette, color0, color1,  output_parameters, sample_parameters["sampleSize"])
         line+="\n"
-        outputContent.append(line) #TODO put a conditional here
+        if outputFile!=None:
+            outputContent.append(line)
     #complex printing stuff
         if not(hide):
             print(line,end="\033[0m")
@@ -255,4 +239,5 @@ if __name__ == "__main__":
                 f.write(line)
         print("Saved output to\033[1m",outputFile,"\033[0m")
 
-    print("\033[0mConverstion Time:",time.time()-startTime,"s")
+    debug_InfoMenager.stampEndTime()
+    debug_InfoMenager.printRunTIme()
