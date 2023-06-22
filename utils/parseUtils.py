@@ -21,3 +21,10 @@ def parse(ArgsParserArguments): #TODO rewrite it so that all the parameters can 
     parser.add_argument("-nbg","--nobackground",nargs='?',default=ArgsParserArguments["foreground"]["default"],const=False, dest="background", help=ArgsParserArguments["foreground"]["help"])
 
     return parser.parse_args()
+
+def loadSampleSize(raw_sampleSize):
+    if "x" in sampleSize:
+        sampleSize=list(map(int,sampleSize.split("x")))
+    else:
+        sampleSize=int(sampleSize)
+        sampleSize=[sampleSize,sampleSize]

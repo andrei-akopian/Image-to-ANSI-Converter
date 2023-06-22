@@ -1,28 +1,13 @@
 from PIL import Image
 import yaml
-from utils import colorUtils, cliparser, outputUtils, debugInfoUtils
+from utils import colorUtils, parseUtils, outputUtils, debugInfoUtils
 
 def parseParameters(arguments):
     #sample size
-    sampleSize=arguments.sampleSize
-    if "x" in sampleSize:
-        sampleSize=list(map(int,sampleSize.split("x")))
-    else:
-        sampleSize=int(sampleSize)
-        sampleSize=[sampleSize,sampleSize]
+    sampleSize=parseUtils.loadSampleSize(arguments.sampleSize)
 
     #Create/load palette
-    palettename=arguments.palettename
-    palette=colorUtils.ColorPalette()
-    if palettename!=None:
-        colorUtils.loadPalette(palettename,palette)
-
-    #characters
-    characters=arguments.characters
-    characterfile=arguments.characterfile
-    if characterfile!=None:
-        with open(characterfile,"r") as f:
-            characters=f.read().strip("\n")
+    colorUtils.loadPalette(arguments.palettename,palette)
 
     sample_parameters = {
         "sampleSize" : sampleSize,
@@ -31,15 +16,7 @@ def parseParameters(arguments):
         "blur" : int(arguments.blur)**3,
     }
 
-    output_parameters = {
-        "characters" : characters,
-        "outputFile" : arguments.output, #None or string
-        "hide" : arguments.hide, #bool
-        "foreground" : arguments.foreground, #bool
-        "background" : arguments.background #bool or string with color code
-    }
-
-    return sample_parameters, palette, output_parameters
+    return sample_parameters, palette
 
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
@@ -184,23 +161,19 @@ if __name__ == "__main__":
     #pre loading/parsing arguments and configs
     with open("config.yaml","r") as f:
         config=yaml.safe_load(f)
-    arguments=cliparser.parse(config["Arguments"])
+    arguments=parseUtils.parse(config["Arguments"])
 
     debug_InfoMenager=debugInfoUtils.DebugInfoManager()
     debug_InfoMenager.stampStartTime()
 
+    #load image
     img = Image.open(arguments.filename)
     imgpx = img.load()
     size=img.size
 
-    sample_parameters, palette, output_parameters = parseParameters(arguments)
+    sample_parameters, palette = parseParameters(arguments)
 
-    output_Manager=outputUtils.OutputManager(output_parameters)
-
-    if output_parameters["hide"]:
-        if output_parameters["outputFile"]==None:
-            print("No output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
-            exit()
+    output_Manager=outputUtils.OutputManager(arguments)
 
     #doing the conversion
     debug_InfoMenager.printImageSize(size)
@@ -208,6 +181,7 @@ if __name__ == "__main__":
 
     defualt_line=""
 
+    #FIXME quite useless
     if type(background)==str:
         if not(hide):
             default_line=palette.monopattern.format(color=background,ESC="\033")
@@ -217,7 +191,7 @@ if __name__ == "__main__":
         line=defualt_line
         for xa in range(0,size[0],sample_parameters["sampleSize"][0]):
             color0, color1=sample(imgpx,xa,ya,**sample_parameters,palette=palette)
-            line+=outputUtils.generatePixel(palette, color0, color1,  output_parameters, sample_parameters["sampleSize"])
+            line+=outputUtils.generatePixel(palette, color0, color1, sample_parameters["sampleSize"])
         line+="\n"
         if outputFile!=None:
             outputContent.append(line)

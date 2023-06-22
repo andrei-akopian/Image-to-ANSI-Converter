@@ -71,3 +71,6 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better character sets
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
+- [ ] allow passing arguments through a config file `-cf`
+- [ ] color filtering
+- [ ] add svg mode
