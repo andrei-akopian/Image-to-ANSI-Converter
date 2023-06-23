@@ -1,22 +1,20 @@
 class OutputManager:
-    def __init__(self,arguments=None):
-        if arguments!=None:
-            self.loadArguments(arguments)
-            self.validateArguments()
+    def __init__(self,arguments):
+        self.passArguments(arguments)
+        self.validateArguments()
+        if self.outputFile!=None:
+            self.output_Content=[]
+        if type(self.background)==str:
+            if self.outputFile!=None:
+                self.output_Content.append(palette.monopattern.format(color=self.background,ESC="\033"))
 
-    def loadArguments(self,arguments):
-        self.outputFile = arguments.output, #None or string
-        self.hide = arguments.hide #bool
-        self.foreground = arguments.foreground #bool
-        self.background = arguments.background #bool or string with color code
-        self.loadCharacters(arguments.characters,arguments.characterfile)
-
-    def loadCharacters(self,characters,characterfile):
-        self.characters=characters #str
-        self.characterfile=characterfile #None or str
-        if self.characterfile!=None:
-            with open(characterfile,"r") as f:
-                self.characters=f.read().strip("\n")
+    def passArguments(self,arguments):
+        self.outputFile = arguments["outputFile"], #None or string
+        self.hide = arguments["hide"] #bool
+        self.foreground = arguments["foreground"] #bool
+        self.background = arguments["background"] #bool or string with color code
+        self.characters = arguments["characters"] #str
+        self.image_size = arguments["image_size"] #tuple
     
     def validateArguments(self):
         if self.hide:
@@ -25,6 +23,15 @@ class OutputManager:
                 exit()
 
     def addPixel(self,palette):
+        pass
+
+    def addNewLine(self):
+        print("\n")
+        if self.outputFile!=None:
+            self.output_Content.append("\n")
+
+    def addWriteOutput(self):
+        #TODO validate (check if perhaps repeating filename)
         pass
 
 

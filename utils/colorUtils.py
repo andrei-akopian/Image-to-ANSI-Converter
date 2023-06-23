@@ -1,6 +1,6 @@
 import json
 
-def loadPalette(palettename,palette):
+def loadPalette(palettename):
     palette=colorUtils.ColorPalette()
     #if custom palette provided -> load it
     if palettename!=None:

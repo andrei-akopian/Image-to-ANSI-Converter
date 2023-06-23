@@ -71,6 +71,8 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better character sets
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
-- [ ] allow passing arguments through a config file `-cf`
+- [ ] allow passing arguments through a file `-cf` (.yaml or .json)
 - [ ] color filtering
-- [ ] add svg mode
+- [ ] add svg character selector
+- [ ] add support for UTF-8 characters
+- [ ] add something about terminal size

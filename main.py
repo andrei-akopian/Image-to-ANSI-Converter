@@ -1,22 +1,6 @@
 from PIL import Image
 import yaml
-from utils import colorUtils, parseUtils, outputUtils, debugInfoUtils
-
-def parseParameters(arguments):
-    #sample size
-    sampleSize=parseUtils.loadSampleSize(arguments.sampleSize)
-
-    #Create/load palette
-    colorUtils.loadPalette(arguments.palettename,palette)
-
-    sample_parameters = {
-        "sampleSize" : sampleSize,
-        "contrast" : float(arguments.contrast),
-        "contrastbreak" : int(arguments.contrastbreak),
-        "blur" : int(arguments.blur)**3,
-    }
-
-    return sample_parameters, palette
+from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
@@ -158,33 +142,29 @@ def find_closest_colorPoint(palette,targetPoint):
     return closestPoint, min_d
                 
 if __name__ == "__main__":
-    #pre loading/parsing arguments and configs
-    with open("config.yaml","r") as f:
-        config=yaml.safe_load(f)
-    arguments=parseUtils.parse(config["Arguments"])
+    #parse arguments
+    config=inputUtils.getConfigFile()
+    arguments=inputUtils.getInput(config)
 
+    #load initiate debug_InfoMenager and stamp start time
     debug_InfoMenager=debugInfoUtils.DebugInfoManager()
     debug_InfoMenager.stampStartTime()
 
-    #load image
-    img = Image.open(arguments.filename)
+    #load image & put img.size into arguments
+    img = Image.open(arguments["filename"]) #TODO validate (elsewhere)
     imgpx = img.load()
-    size=img.size
+    image_size=img.size
+    arguments["image_size"] = image_size
 
-    sample_parameters, palette = parseParameters(arguments)
+    #create/load palette:
+    colorUtils.loadPalette(arguments["palettename"])
 
     output_Manager=outputUtils.OutputManager(arguments)
 
-    #doing the conversion
-    debug_InfoMenager.printImageSize(size)
-    debug_InfoMenager.printNewImageSize(size,sample_parameters["sampleSize"])
-
-    defualt_line=""
-
-    #FIXME quite useless
-    if type(background)==str:
-        if not(hide):
-            default_line=palette.monopattern.format(color=background,ESC="\033")
+    ## doing the conversion
+    # print image sizes
+    debug_InfoMenager.printImageSize(image_size)
+    debug_InfoMenager.printNewImageSize(image_size,arguments["sample_size"])
 
     for ya in range(0,size[1],sample_parameters["sampleSize"][1]):
         #TODO rewrite line to be a list
@@ -196,7 +176,7 @@ if __name__ == "__main__":
         if outputFile!=None:
             outputContent.append(line)
     #complex printing stuff
-        if not(hide):
+        if not(hide): #TODO figure out why I need this
             print(line,end="\033[0m")
         #if the output is hidden -> show percentages
         else:
