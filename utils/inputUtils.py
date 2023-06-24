@@ -4,6 +4,7 @@ Read, load, cli, configs and other inputs
 """
 
 import argparse
+import yaml
 
 def getConfigFile(filepath="config.yaml"):
     with open(filepath,"r") as f:
@@ -43,14 +44,14 @@ def processInputs(raw_arguments):
         "output_filename":raw_arguments.output,
 
         "contrast":int(raw_arguments.contrast),
-        "constrastbreak":int(raw_arguments.constrastbreak),
-        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [h,w]
+        "contrastbreak":int(raw_arguments.contrastbreak),
+        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h]
         "blur":int(raw_arguments.blur),
         "image_size":[0,0], #modified after image is parsed
 
         "hide":raw_arguments.hide,
         "palettename":raw_arguments.palettename,
-        "characters":processCharacters(raw_arguments.characters,raw_arguments.charactersfile),
+        "characters":processCharacters(raw_arguments.characters,raw_arguments.characterfile), #str
         "foreground":raw_arguments.foreground,
         "background":raw_arguments.background
     }
@@ -64,10 +65,12 @@ def processSampleSize(raw_sampleSize):
         sampleSize=[int_sampleSize,int_sampleSize]
     return sampleSize
 
-def processCharacters(self,raw_characters,raw_characterfile):
-    self.characters=raw_characters #str
-    self.characterfile=raw_characterfile #None or str
-    if self.characterfile!=None:
-        with open(characterfile,"r") as f:
-            self.characters=f.read().strip("\n")
-    return characters
+def processCharacters(raw_characters,raw_characterfile): 
+    #< [str, None or str] 
+    #> str
+    if raw_characterfile!=None:
+        with open(raw_characterfile,"r") as f:
+            characters=f.read().strip("\n")
+        return characters
+    else:
+        return raw_characters

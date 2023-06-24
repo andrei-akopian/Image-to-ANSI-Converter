@@ -1,7 +1,7 @@
 import json
 
 def loadPalette(palettename):
-    palette=colorUtils.ColorPalette()
+    palette=ColorPalette()
     #if custom palette provided -> load it
     if palettename!=None:
         #open file
@@ -16,6 +16,8 @@ def loadPalette(palettename):
         palette.duopattern=data["duopattern"]
         palette.foreground_prefix=data["foreground_prefix"]
         palette.background_prefix=data["background_prefix"]
+
+        # * NOTE: the colorPoints will NOT remain in order
         for cp in data["colors"]:
             palette.addpoint(ColorPoint(cp[2]))
             palette.colorPoints[-1].foreground=cp[0]
@@ -68,6 +70,18 @@ class ColorPalette:
             return self.monopattern.format(color=bgcolor,ESC=ESC)
         else:
             return self.duopattern.format(foreground=fgcolor,background=bgcolor,ESC=ESC)
+
+    # * using native .sort is actually faster
+    # def find_greatest_2_colors(colorPoints):
+    #     maxI=len(colorPoints)-1
+    #     secondMaxI=0
+    #     for i in range(len(colorPoints)):
+    #         if colorPoints[maxI].weight<colorPoints[i].weight:
+    #             secondMaxI=maxI
+    #             maxI=i
+    #         elif colorPoints[secondMaxI].weight<colorPoints[i].weight:
+    #             secondMaxI=i
+    #     return colorPoints[maxI], colorPoints[secondMaxI]
 
 class ColorPoint:
     def __init__(self,color):

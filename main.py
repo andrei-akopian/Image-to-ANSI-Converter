@@ -1,29 +1,28 @@
 from PIL import Image
-import yaml
 from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
 #TODO make filters to filter noise colors
-def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
+def sample(imgpx,xa,ya,palette,arguments):
     #sampling
     if palette.muteable:
         palette=colorUtils.ColorPalette()
     else:
         palette.ground()
-    for x in range(xa,xa+sampleSize[0]):
-        for y in range(ya,ya+sampleSize[1]):
-            if x<size[0] and y<size[1]:
+    for x in range(xa,xa+arguments["sample_size"][0]):
+        for y in range(ya,ya+arguments["sample_size"][1]):
+            if x<arguments["image_size"][0] and y<arguments["image_size"][1]:
                 newPoint=colorUtils.ColorPoint(imgpx[x,y])
                 #contrast
-                newPoint.setContrast(contrast,contrastbreak)
+                newPoint.setContrast(arguments["contrast"],arguments["contrastbreak"])
                 #main code
-                if not(palette.muteable):
+                if not(palette.muteable): # ? slower despite having less points
                     closestPoint, _ = find_closest_colorPoint(palette, newPoint)
                     closestPoint.weight+=1
                 else:
                     closestPoint, d = find_closest_colorPoint(palette, newPoint)
                     if closestPoint==None:
                         palette.addpoint(newPoint)
-                    elif d<((blur+closestPoint.weight)*0.24)**(1/3): #the weight of apoint increases the volume
+                    elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of apoint increases the volume
                             closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)
                             closestPoint.g=(closestPoint.g*closestPoint.weight+newPoint.g)//(closestPoint.weight+1)
                             closestPoint.b=(closestPoint.b*closestPoint.weight+newPoint.b)//(closestPoint.weight+1)
@@ -31,18 +30,7 @@ def sample(imgpx,xa,ya,sampleSize,contrast,contrastbreak,blur,palette):
                     else:
                         palette.addpoint(newPoint)
 
-    return find_greatest_2_colors(palette.colorPoints)
-
-def find_greatest_2_colors(colorPoints):
-    maxI=len(colorPoints)-1
-    secondMaxI=0
-    for i in range(len(colorPoints)):
-        if colorPoints[maxI].weight<colorPoints[i].weight:
-            secondMaxI=maxI
-            maxI=i
-        elif colorPoints[secondMaxI].weight<colorPoints[i].weight:
-            secondMaxI=i
-    return colorPoints[maxI], colorPoints[secondMaxI]
+    return palette
 
 def calculate_distance(point0,point1):
     d=0
@@ -147,51 +135,37 @@ if __name__ == "__main__":
     arguments=inputUtils.getInput(config)
 
     #load initiate debug_InfoMenager and stamp start time
-    debug_InfoMenager=debugInfoUtils.DebugInfoManager()
+    debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
     debug_InfoMenager.stampStartTime()
 
     #load image & put img.size into arguments
-    img = Image.open(arguments["filename"]) #TODO validate (elsewhere)
+    img = Image.open(arguments["image_filename"]) #TODO validate (write a seperate function)
     imgpx = img.load()
     image_size=img.size
     arguments["image_size"] = image_size
 
     #create/load palette:
-    colorUtils.loadPalette(arguments["palettename"])
+    palette=colorUtils.loadPalette(arguments["palettename"])
 
-    output_Manager=outputUtils.OutputManager(arguments)
+    output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
     ## doing the conversion
-    # print image sizes
+    # print image sizes #TODO add runtime estimate
     debug_InfoMenager.printImageSize(image_size)
     debug_InfoMenager.printNewImageSize(image_size,arguments["sample_size"])
 
-    for ya in range(0,size[1],sample_parameters["sampleSize"][1]):
-        #TODO rewrite line to be a list
-        line=defualt_line
-        for xa in range(0,size[0],sample_parameters["sampleSize"][0]):
-            color0, color1=sample(imgpx,xa,ya,**sample_parameters,palette=palette)
-            line+=outputUtils.generatePixel(palette, color0, color1, sample_parameters["sampleSize"])
-        line+="\n"
-        if outputFile!=None:
-            outputContent.append(line)
-    #complex printing stuff
-        if not(hide): #TODO figure out why I need this
-            print(line,end="\033[0m")
-        #if the output is hidden -> show percentages
-        else:
-            print(f"\r{str(round((ya/size[1])*100,1))}%",end="")
-    if hide:
-        print("\rDone   ")
+    for ya in range(0,image_size[1],arguments["sample_size"][1]):
+        output_Manager.startLine(palette.monopattern)
+        for xa in range(0,image_size[0],arguments["sample_size"][0]):
+            palette=sample(imgpx,xa,ya,palette=palette,arguments=arguments)
+            output_Manager.addPixel(palette)
 
-    #save output to file
-    if outputFile!=None:
-        if not('.' in outputFile):
-            outputFile+='.txt'
-        with open(outputFile,"w") as f:
-            for line in outputContent:
-                f.write(line)
-        print("Saved output to\033[1m",outputFile,"\033[0m")
+        debug_InfoMenager.stampInterval()
+        debug_InfoMenager.printLastInterval(len(palette.colorPoints))
+
+        output_Manager.endLine(ya)
+
+    output_Manager.createOutputFile()
 
     debug_InfoMenager.stampEndTime()
     debug_InfoMenager.printRunTIme()

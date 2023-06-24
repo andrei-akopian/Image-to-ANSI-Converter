@@ -47,7 +47,7 @@ Type `python3 main.py -h` into the commandline to display the help message.
 
 `-charf --characterfile` enter filename.txt with characters to be used sorted light to dark.
 
-`-nbg --nobackground` creates an image with only the symbols colored. A custom background color can be entered eg: `-nbg=255;255;255`.
+`-nbg --nobackground` creates an image with only the symbols colored. A custom background color can be entered eg: `-nbg="255;255;255"` (if using palette, it has to be copatible with the palette monopattern).
 
 `-nfg --noforeground` creates an image without symbols, only background pixels
 
@@ -65,6 +65,7 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 
 ## TODO
 - [ ] make better output file handler (file formats)
+- [ ] generate output images so user doesn't have to screenshort them
 - [ ] improve contrast algorithm
 - [ ] make "setsize" instead of sampleSize- so it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
@@ -76,3 +77,6 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] add svg character selector
 - [ ] add support for UTF-8 characters
 - [ ] add something about terminal size
+- [ ] add csv export of pixels
+- [ ] maybe try writing to the file as the program is running
+- [ ] some kind of chaching&optimization or lossy compression
