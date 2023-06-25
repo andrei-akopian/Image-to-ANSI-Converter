@@ -63,9 +63,7 @@ class OutputManager:
 
     def _generatePixel(self,palette):
             #TODO this could be optimized and will have to be adjusted once filters are implemented
-            palette.colorPoints.sort(key=lambda colorPoint: colorPoint.weight, reverse=True)
-            color0=palette.colorPoints[0]
-            color1=palette.colorPoints[1]
+            color0,color1=palette.findMax2()
 
             pixel=""
             fraction_0=color0.weight/(color0.weight+color1.weight)

@@ -80,3 +80,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] add csv export of pixels
 - [ ] maybe try writing to the file as the program is running
 - [ ] some kind of chaching&optimization or lossy compression
+- [ ] potentially use median colors

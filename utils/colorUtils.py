@@ -17,7 +17,6 @@ def loadPalette(palettename):
         palette.foreground_prefix=data["foreground_prefix"]
         palette.background_prefix=data["background_prefix"]
 
-        # * NOTE: the colorPoints will NOT remain in order
         for cp in data["colors"]:
             palette.addpoint(ColorPoint(cp[2]))
             palette.colorPoints[-1].foreground=cp[0]
@@ -28,13 +27,16 @@ class ColorPalette:
     def __init__(self):
         self.monopattern="{ESC}[{color}m"
         self.duopattern="{ESC}[{foreground}m{ESC}[{background}m"
+        self.foreground_prefix="38;2;"
+        self.background_prefix="48;2;"
+
         self.colorPoints=[]
         self.Raxis=[]
         self.Gaxis=[]
         self.Baxis=[]
+
         self.muteable=True
-        self.foreground_prefix="38;2;"
-        self.background_prefix="48;2;"
+        self.with_filter=False
 
     def addpoint(self,point):
         self.colorPoints.append(point)
@@ -55,8 +57,26 @@ class ColorPalette:
             return self.search(axis,target,start,(start+end)//2,key)
 
     def ground(self):
-        for point in self.colorPoints:
-            point.weight=1
+        cpI=0
+        if self.muteable and self.with_filter:
+            while cpI < len(self.colorPoints):
+                if self.colorPoints[cpI].is_filter:
+                    point.weight=1
+                    cpI+=1
+                else:
+                    self.Raxis.remove(self.colorPoints[cpI])
+                    self.Gaxis.remove(self.colorPoints[cpI])
+                    self.Baxis.remove(self.colorPoints[cpI])
+                    del self.colorPoints[cpI]
+        elif self.muteable and not(self.with_filter):
+            del self.colorPoints[:]
+            del self.Raxis[:]
+            del self.Gaxis[:]
+            del self.Baxis[:]
+        elif not(self.muteable):
+            while cpI < len(self.colorPoints):
+                self.colorPoints[cpI].weight=1
+                cpI+=1
 
     def fillPattern(self,fgcolor=None,bgcolor=None,ESC="\033"):
         #neighter
@@ -71,17 +91,16 @@ class ColorPalette:
         else:
             return self.duopattern.format(foreground=fgcolor,background=bgcolor,ESC=ESC)
 
-    # * using native .sort is actually faster
-    # def find_greatest_2_colors(colorPoints):
-    #     maxI=len(colorPoints)-1
-    #     secondMaxI=0
-    #     for i in range(len(colorPoints)):
-    #         if colorPoints[maxI].weight<colorPoints[i].weight:
-    #             secondMaxI=maxI
-    #             maxI=i
-    #         elif colorPoints[secondMaxI].weight<colorPoints[i].weight:
-    #             secondMaxI=i
-    #     return colorPoints[maxI], colorPoints[secondMaxI]
+    def findMax2(self):
+        maxI=len(self.colorPoints)-1
+        secondMaxI=0
+        for i in range(len(self.colorPoints)):
+            if self.colorPoints[maxI].weight<self.colorPoints[i].weight:
+                secondMaxI=maxI
+                maxI=i
+            elif self.colorPoints[secondMaxI].weight<self.colorPoints[i].weight:
+                secondMaxI=i
+        return self.colorPoints[maxI], self.colorPoints[secondMaxI]
 
 class ColorPoint:
     def __init__(self,color):

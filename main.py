@@ -4,10 +4,7 @@ from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 #TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,palette,arguments):
     #sampling
-    if palette.muteable:
-        palette=colorUtils.ColorPalette()
-    else:
-        palette.ground()
+    palette.ground()
     for x in range(xa,xa+arguments["sample_size"][0]):
         for y in range(ya,ya+arguments["sample_size"][1]):
             if x<arguments["image_size"][0] and y<arguments["image_size"][1]:
