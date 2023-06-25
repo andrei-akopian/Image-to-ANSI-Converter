@@ -1,4 +1,5 @@
 from PIL import Image
+import math
 from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
 def sample(imgpx,xa,ya,palette,arguments):
@@ -140,6 +141,9 @@ if __name__ == "__main__":
     imgpx = img.load()
     image_size=img.size
     arguments["image_size"] = image_size
+    if arguments["output_size"]!=None:
+        arguments["output_size"]=list(map(int,arguments["output_size"].split("x")))
+        arguments["sample_size"]=[math.ceil(image_size[0]/arguments["output_size"][0]),math.ceil(image_size[1]/arguments["output_size"][1])]
 
     #create/load palette:
     palette=colorUtils.loadPalette(arguments["palettename"])

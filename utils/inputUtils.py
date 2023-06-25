@@ -27,6 +27,7 @@ def parsecli(ArgsParserArguments): #TODO rewrite it so that all the parameters c
     parser.add_argument("-c","--contrast",default=ArgsParserArguments["contrast"]["default"],help=ArgsParserArguments["contrast"]["help"])
     parser.add_argument("-cb","--contrastbreak",default=ArgsParserArguments["contrastbreak"]["default"],help=ArgsParserArguments["contrastbreak"]["help"])
     parser.add_argument("-s","--sampleSize",default=ArgsParserArguments["sampleSize"]["default"],help=ArgsParserArguments["sampleSize"]["help"])
+    parser.add_argument("-os","--outputSize",default=ArgsParserArguments["outputSize"]["default"],help=ArgsParserArguments["outputSize"]["help"])
     parser.add_argument("-b","--blur",default=ArgsParserArguments["blur"]["default"],help=ArgsParserArguments["blur"]["help"])
 
     parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
@@ -47,7 +48,8 @@ def processInputs(raw_arguments):
 
         "contrast":int(raw_arguments.contrast),
         "contrastbreak":int(raw_arguments.contrastbreak),
-        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h]
+        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h],
+        "output_size":raw_arguments.outputSize, #tuple [w,h]
         "blur":int(raw_arguments.blur),
         "image_size":[0,0], #modified after image is parsed
 

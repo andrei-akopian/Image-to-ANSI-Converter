@@ -47,7 +47,7 @@ class DebugInfoManager:
         print("Original Size:",image_size[0],image_size[1],"px")
 
     def printNewImageSize(self,image_size,sampleSize):
-         print("ANSI Size:",math.ceil(image_size[0]/sampleSize[0]),math.ceil(image_size[1]//sampleSize[1]),"chr")
+         print("ANSI Size:",math.ceil(image_size[0]/sampleSize[0]),math.ceil(image_size[1]/sampleSize[1]),"chr")
 
     def printRunTime(self):
         print("Converstion Time:",round(self.getRunTime(),7),"s")

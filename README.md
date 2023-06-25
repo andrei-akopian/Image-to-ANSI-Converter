@@ -8,7 +8,7 @@ A tool for converting images into [ANSI](https://en.wikipedia.org/wiki/ANSI_esca
 - Image in a format that Pillow can open (`.png .jpg .jpeg`)
 - Square font, you need a font that is the same size vertically and horizaontally: [SQUARE](https://strlen.com/square/) or [Square One](https://www.dafont.com/square-one.font)
 
-Requirements probably already have:
+Requirements you probably already have:
 - python yaml library
 
 ## Usage
