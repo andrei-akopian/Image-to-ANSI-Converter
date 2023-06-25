@@ -26,6 +26,9 @@ Arguments:
   palettename: 
     default: null
     help: "Enter name of the pallete from palettes or file path"
+  filterpalettename: 
+    default: null
+    help: "Enter name of the palette to use as filter"
   characters: 
     default: \'^:!=*$%@#
     help: "enter characters"

@@ -52,11 +52,11 @@ class DebugInfoManager:
     def printRunTIme(self):
         print("Converstion Time:",round(self.getRunTime(),7),"s")
     
-    def printLastInterval(self,NcolorPoints):
+    def printLastInterval(self):
         #put this under an option
         if not(self.hide):
             interval=self.getInterval(len(self.intervals)-2)
-            print("\033[0m %1.4fs" % interval, "%3dcp" % NcolorPoints,end="")
+            print("\033[0m %1.4fs" % interval,end="")
             return interval
 
 

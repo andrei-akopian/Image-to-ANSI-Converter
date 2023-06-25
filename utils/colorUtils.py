@@ -5,7 +5,7 @@ def loadPalette(palettename):
     #if custom palette provided -> load it
     if palettename!=None:
         #open file
-        if not("/" in palettename):
+        if not("/" in palettename): #TODO add validation
             palettename="palettes/"+palettename+".json"
         data={}
         with open(palettename,"r") as f:
@@ -18,10 +18,25 @@ def loadPalette(palettename):
         palette.background_prefix=data["background_prefix"]
 
         for cp in data["colors"]:
-            palette.addpoint(ColorPoint(cp[2]))
-            palette.colorPoints[-1].foreground=cp[0]
-            palette.colorPoints[-1].background=cp[1]
+            color_Point=ColorPoint(cp[2])
+            color_Point.foreground=cp[0]
+            color_Point.background=cp[1]
+            palette.addpoint(color_Point)
     return palette
+
+def loadFilter(filterpalettename,palette):
+    #open file
+    if not("/" in filterpalettename): #TODO add validation
+        filterpalettename="palettes/"+filterpalettename+".json"
+    data={}
+    with open(filterpalettename,"r") as f:
+        data=json.load(f)
+    #add the filters to palette
+    palette.with_filter=True
+    for cp in data["colors"]: #TODO allow a simpler version of filter palettes
+        color_Point=ColorPoint(cp[2])
+        color_Point.is_filter=True
+        palette.addpoint(color_Point)
 
 class ColorPalette:
     def __init__(self):
@@ -61,7 +76,7 @@ class ColorPalette:
         if self.muteable and self.with_filter:
             while cpI < len(self.colorPoints):
                 if self.colorPoints[cpI].is_filter:
-                    point.weight=1
+                    self.colorPoints[cpI].weight=1
                     cpI+=1
                 else:
                     self.Raxis.remove(self.colorPoints[cpI])
@@ -92,14 +107,29 @@ class ColorPalette:
             return self.duopattern.format(foreground=fgcolor,background=bgcolor,ESC=ESC)
 
     def findMax2(self):
-        maxI=len(self.colorPoints)-1
-        secondMaxI=0
-        for i in range(len(self.colorPoints)):
-            if self.colorPoints[maxI].weight<self.colorPoints[i].weight:
-                secondMaxI=maxI
-                maxI=i
-            elif self.colorPoints[secondMaxI].weight<self.colorPoints[i].weight:
-                secondMaxI=i
+        maxI=None
+        secondMaxI=None
+        i=0
+        while i<len(self.colorPoints):
+            if not(self.colorPoints[i].is_filter):
+                #maxI
+                if maxI==None:
+                    maxI=i
+                elif self.colorPoints[maxI].weight<self.colorPoints[i].weight:
+                    secondMaxI=maxI
+                    maxI=i
+                #secondMaxI
+                elif secondMaxI==None:
+                    secondMaxI=i
+                elif self.colorPoints[secondMaxI].weight<self.colorPoints[i].weight:
+                    secondMaxI=i
+            i+=1
+        if secondMaxI==None:
+            secondMaxI=maxI
+        if maxI==None:
+            color_Point=ColorPoint([0,0,0])
+            return color_Point, color_Point
+            # raise Exception("\033[0m\033[1mYour filters filtered out a part of the image") #happens literraly all the time
         return self.colorPoints[maxI], self.colorPoints[secondMaxI]
 
 class ColorPoint:
@@ -108,7 +138,7 @@ class ColorPoint:
         self.g=color[1]
         self.b=color[2]
         self.weight=1
-        self.foreground=""
+        self.foreground="" #TODO replace this with None
         self.background=""
         self.is_filter=0
 

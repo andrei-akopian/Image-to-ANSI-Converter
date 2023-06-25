@@ -6,12 +6,13 @@ Read, load, cli, configs and other inputs
 import argparse
 import yaml
 
-def getConfigFile(filepath="config.yaml"):
+def getYamlFile(filepath):
     with open(filepath,"r") as f:
         return yaml.safe_load(f)
 
-def getInput(config):
-    raw_arguments=parsecli(config["Arguments"])
+def getInput():
+    argparseArguments=getYamlFile("utils/argparseArguments.yaml")
+    raw_arguments=parsecli(argparseArguments["Arguments"])
     arguments=processInputs(raw_arguments) #dictionary
     return arguments
 
@@ -30,6 +31,7 @@ def parsecli(ArgsParserArguments): #TODO rewrite it so that all the parameters c
 
     parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
     parser.add_argument("-p","--palettename",default=ArgsParserArguments["palettename"]["default"],help=ArgsParserArguments["palettename"]["help"])
+    parser.add_argument("-fp","--filterpalettename",default=ArgsParserArguments["filterpalettename"]["default"],help=ArgsParserArguments["filterpalettename"]["help"])
     parser.add_argument("-char","--characters", default=ArgsParserArguments["characters"]["default"], help=ArgsParserArguments["characters"]["help"])
     parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"]["default"], help=ArgsParserArguments["characterfile"]["help"])
     parser.add_argument("-nfg","--noforeground",action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"]["default"], help=ArgsParserArguments["background"]["help"])
@@ -51,6 +53,7 @@ def processInputs(raw_arguments):
 
         "hide":raw_arguments.hide,
         "palettename":raw_arguments.palettename,
+        "filterpalettename":raw_arguments.filterpalettename,
         "characters":processCharacters(raw_arguments.characters,raw_arguments.characterfile), #str
         "foreground":raw_arguments.foreground,
         "background":raw_arguments.background

@@ -1,7 +1,6 @@
 from PIL import Image
 from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
-#TODO make filters to filter noise colors
 def sample(imgpx,xa,ya,palette,arguments):
     #sampling
     palette.ground()
@@ -11,15 +10,16 @@ def sample(imgpx,xa,ya,palette,arguments):
                 newPoint=colorUtils.ColorPoint(imgpx[x,y])
                 #contrast
                 newPoint.setContrast(arguments["contrast"],arguments["contrastbreak"])
-                #main code
-                if not(palette.muteable): # ? slower despite having less points
-                    closestPoint, _ = find_closest_colorPoint(palette, newPoint)
+                #figuring out what that point does to the statistics
+                closestPoint, d = find_closest_colorPoint(palette, newPoint)
+                if not(palette.muteable):
                     closestPoint.weight+=1
                 else:
-                    closestPoint, d = find_closest_colorPoint(palette, newPoint)
                     if closestPoint==None:
                         palette.addpoint(newPoint)
-                    elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of apoint increases the volume
+                    elif closestPoint.is_filter:
+                        closestPoint.weight+=1 # * maybe I should make fitlerPoints adjust their color
+                    elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of a point increases it's the volume
                             closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)
                             closestPoint.g=(closestPoint.g*closestPoint.weight+newPoint.g)//(closestPoint.weight+1)
                             closestPoint.b=(closestPoint.b*closestPoint.weight+newPoint.b)//(closestPoint.weight+1)
@@ -44,7 +44,8 @@ def find_closest_colorPoint(palette,targetPoint):
 
     #> closestPoint, distance
 
-    After choosing a random point as the "closest so far"
+    The script finds the points rough position an the palette.[R,G,B]axis
+    After choosing a nearby point as the "closest so far"
     The furthest a potential closer point could be is directly on a cordinal line less then the distance you already got.
     """
     rpi=palette.search(palette.Raxis,targetPoint.r,key=lambda o: o.r)
@@ -53,7 +54,7 @@ def find_closest_colorPoint(palette,targetPoint):
     gmi=gpi-1
     bpi=palette.search(palette.Raxis,targetPoint.b,key=lambda o: o.b)
     bmi=bpi-1
-    min_d=800
+    min_d=800 #255*3
     closestPoint=None
     n=1
     while n>0:
@@ -128,8 +129,7 @@ def find_closest_colorPoint(palette,targetPoint):
                 
 if __name__ == "__main__":
     #parse arguments
-    config=inputUtils.getConfigFile()
-    arguments=inputUtils.getInput(config)
+    arguments=inputUtils.getInput()
 
     #load initiate debug_InfoMenager and stamp start time
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
@@ -143,6 +143,9 @@ if __name__ == "__main__":
 
     #create/load palette:
     palette=colorUtils.loadPalette(arguments["palettename"])
+    if arguments["filterpalettename"]!=None:
+        # print("Loading filterpalette:",arguments["filterpalettename"])
+        colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
@@ -153,12 +156,13 @@ if __name__ == "__main__":
 
     for ya in range(0,image_size[1],arguments["sample_size"][1]):
         output_Manager.startLine(palette.monopattern)
+
         for xa in range(0,image_size[0],arguments["sample_size"][0]):
             palette=sample(imgpx,xa,ya,palette=palette,arguments=arguments)
             output_Manager.addPixel(palette)
 
         debug_InfoMenager.stampInterval()
-        debug_InfoMenager.printLastInterval(len(palette.colorPoints))
+        debug_InfoMenager.printLastInterval()
 
         output_Manager.endLine(ya)
 

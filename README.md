@@ -6,15 +6,19 @@ A tool for converting images into [ANSI](https://en.wikipedia.org/wiki/ANSI_esca
 - baisic knowledge of terminals, filepaths and commandline argument usage.
 - Python [Pillow](https://pillow.readthedocs.io/en/stable/) library
 - Image in a format that Pillow can open (`.png .jpg .jpeg`)
-- Square font, you need a font that is the same size vertically and horizaontally: [SQUARE](https://strlen.com/square/) or [Square One](https://www.dafont.com/square-one.font) 
+- Square font, you need a font that is the same size vertically and horizaontally: [SQUARE](https://strlen.com/square/) or [Square One](https://www.dafont.com/square-one.font)
+
+Requirements probably already have:
+- python yaml library
 
 ## Usage
-As I said, you can use the program entirely form the commandline.
 
 ### Setup
 I haven't made any advanced setup, so you will have to download a zip of the repo, extract it whereever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
 
 ### Use
+Run the `main.py` file with the cli arguments arguments
+
 Type `python3 main.py -h` into the commandline to display the help message.
 
 **Here is a summery of the commandline arguments:**
@@ -41,7 +45,9 @@ Type `python3 main.py -h` into the commandline to display the help message.
 
 **Apperance**
 
-`-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are in the palettes folder.
+`-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are default palettes in the palettes folder. Use formatting guide in `paletteNotes.md` to mak your own.
+
+`-pf --filterpalettename` enter name of the palette with filter points you want to use (filters colors).
 
 `-char --characters` enter string of characters to be used in the art instead of the default one sorted light to dark.
 
@@ -81,3 +87,5 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] maybe try writing to the file as the program is running
 - [ ] some kind of chaching&optimization or lossy compression
 - [ ] potentially use median colors
+- [ ] better cli
+- [ ] figure out the `.ans` file format and maybe make use of it

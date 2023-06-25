@@ -22,11 +22,9 @@ class OutputManager:
     def validateArguments(self):
         if self.hide:
             if self.outputFile==None:
-                print("No output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
-                exit()
+                raise Exception("\033[1mNo output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
         if self.foreground==False and self.background==False:
-            print("You can't have both no foreground and no background. (it's pointless)")
-            exit()
+            raise Exception("\033[1mYou can't have both no foreground and no background. (it's pointless)")
 
     def addPixel(self,palette):
         pixel=self._generatePixel(palette)
@@ -66,11 +64,11 @@ class OutputManager:
             color0,color1=palette.findMax2()
 
             pixel=""
-            fraction_0=color0.weight/(color0.weight+color1.weight)
-            fraction_1=1-fraction_0
 
             #TODO fix pattern formatting and this mess
             if self.foreground==True and self.background==True:
+                fraction_0=color0.weight/(color0.weight+color1.weight)
+                fraction_1=1-fraction_0
                 pixel+=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+color1.getForeground(),background=palette.background_prefix+color0.getBackground())
                 pixel+=self.characters[round(fraction_1*2*(len(self.characters)-1))]
             elif self.foreground==True:
