@@ -17,7 +17,7 @@ def sample(imgpx,xa,ya,palette,arguments):
                 else:
                     if closestPoint==None:
                         palette.addpoint(newPoint)
-                    elif closestPoint.is_filter:
+                    elif closestPoint.is_filter: #TODO make filter less effective/add control for the effectiveness
                         closestPoint.weight+=1 # * maybe I should make fitlerPoints adjust their color
                     elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of a point increases it's the volume
                             closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)

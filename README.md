@@ -47,7 +47,7 @@ Type `python3 main.py -h` into the commandline to display the help message.
 
 `-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are default palettes in the palettes folder. Use formatting guide in `paletteNotes.md` to mak your own.
 
-`-pf --filterpalettename` enter name of the palette with filter points you want to use (filters colors).
+`-pf --filterpalettename` enter name of the palette with filter points you want to use (filters colors). Because the 3-bit filterpalette can filter out the entire image, you should use filters only when using a palette (Ik it's quite useless).
 
 `-char --characters` enter string of characters to be used in the art instead of the default one sorted light to dark.
 
@@ -75,11 +75,10 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] improve contrast algorithm
 - [ ] make "setsize" instead of sampleSize- so it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
-- [ ] better character sets
+- [ ] better character sets arguments
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
 - [ ] allow passing arguments through a file `-cf` (.yaml or .json)
-- [ ] color filtering
 - [ ] add svg character selector
 - [ ] add support for UTF-8 characters
 - [ ] add something about terminal size
