@@ -29,6 +29,8 @@ Type `python3 main.py -h` into the commandline to display the help message.
 
 `-s --sampleSize` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
 
+`-os --outputSize` Instead of messing with sampleSizes you can specify the size of the output image directly (in characters.) Same as sample size: WxH eg. 40x50 (40 wide, 50 tall)
+
 **Save to a file**
 
 `-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors

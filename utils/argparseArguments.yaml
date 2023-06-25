@@ -15,7 +15,7 @@ Arguments:
     help: "Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X (XxX)"
   outputSize:
     default: null
-    help: "instead of sampleSize, set the size you want to image to be. Enter as WxH"
+    help: "instead of sampleSize, set the size you want to image to be in characters. Enter as WxH."
   contrastbreak: 
     default: 128
     help: "Border of darkness levels between making a pixel darker or brighter (0-255 recomended range 50-200)"
