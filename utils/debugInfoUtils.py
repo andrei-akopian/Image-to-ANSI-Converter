@@ -49,7 +49,7 @@ class DebugInfoManager:
     def printNewImageSize(self,image_size,sampleSize):
          print("ANSI Size:",math.ceil(image_size[0]/sampleSize[0]),math.ceil(image_size[1]//sampleSize[1]),"chr")
 
-    def printRunTIme(self):
+    def printRunTime(self):
         print("Converstion Time:",round(self.getRunTime(),7),"s")
     
     def printLastInterval(self):
@@ -58,5 +58,4 @@ class DebugInfoManager:
             interval=self.getInterval(len(self.intervals)-2)
             print("\033[0m %1.4fs" % interval,end="")
             return interval
-
 

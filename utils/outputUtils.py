@@ -60,12 +60,10 @@ class OutputManager:
             print("\033[0mSaved output to\033[1m",self.outputFile,"\033[0m")
 
     def _generatePixel(self,palette):
-            #TODO this could be optimized and will have to be adjusted once filters are implemented
             color0,color1=palette.findMax2()
 
             pixel=""
 
-            #TODO fix pattern formatting and this mess
             if self.foreground==True and self.background==True:
                 fraction_0=color0.weight/(color0.weight+color1.weight)
                 fraction_1=1-fraction_0

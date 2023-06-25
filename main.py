@@ -150,7 +150,7 @@ if __name__ == "__main__":
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
     ## doing the conversion
-    # print image sizes #TODO add runtime estimate
+    # print image sizes
     debug_InfoMenager.printImageSize(image_size)
     debug_InfoMenager.printNewImageSize(image_size,arguments["sample_size"])
 
@@ -169,4 +169,4 @@ if __name__ == "__main__":
     output_Manager.createOutputFile()
 
     debug_InfoMenager.stampEndTime()
-    debug_InfoMenager.printRunTIme()
+    debug_InfoMenager.printRunTime()
