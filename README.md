@@ -14,7 +14,7 @@ Requirements you probably already have:
 ## Usage
 
 ### Setup
-I haven't made any advanced setup, so you will have to download a zip of the repo, extract it whereever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
+I haven't made any advanced setup, so you will have to download a zip of the repo from the [releases](https://github.com/andrei-akopian/Image-to-ANSI-Converter/releases) (because everything is currently probably broken) , extract it wherever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
 
 ### Use
 Run the `main.py` file with the cli arguments arguments
