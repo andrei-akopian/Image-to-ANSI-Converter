@@ -22,6 +22,9 @@ Arguments:
   blur: 
     default: 30
     help: "Blurs a furhter range of colors together"
+  distance_calculation_mode:
+    default: p
+    help: "Method of calculatting pixel smilarity. m - manhattan, p - pythagorean"
 
   hide: 
     default: False

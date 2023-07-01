@@ -30,12 +30,19 @@ def sample(imgpx,xa,ya,palette,arguments):
 
     return palette
 
-def calculate_distance(point0,point1):
+def calculate_pythagorean_distance(point0,point1):
     d=0
     d+=abs(point0.r-point1.r)**2
     d+=abs(point0.g-point1.g)**2
     d+=abs(point0.b-point1.b)**2
     return d**0.5
+
+def calculate_manhattan_distance(point0,point1):
+    d=0
+    d+=abs(point0.r-point1.r)
+    d+=abs(point0.g-point1.g)
+    d+=abs(point0.b-point1.b)
+    return d
 
 def find_closest_colorPoint(palette,targetPoint):
     """uses axis data structures in ColorPalette to quickly find closest point
@@ -152,6 +159,14 @@ if __name__ == "__main__":
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
+
+    #TODO move this elsewhere
+    if arguments["distance_calculation_mode"] == "m":
+        calculate_distance=calculate_manhattan_distance
+    elif arguments["distance_calculation_mode"] == "p":
+        calculate_distance=calculate_pythagorean_distance
+    else:
+        raise Exception("\033[1mIncorrect distance calculation mode specification")
 
     ## doing the conversion
     # print image sizes
