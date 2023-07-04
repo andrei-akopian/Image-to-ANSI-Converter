@@ -1,3 +1,5 @@
+import os
+
 class OutputManager:
     def __init__(self,arguments,monopattern):
         self.passArguments(arguments)
@@ -25,6 +27,19 @@ class OutputManager:
                 raise Exception("\033[1mNo output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
         if self.foreground==False and self.background==False:
             raise Exception("\033[1mYou can't have both no foreground and no background. (it's pointless)")
+        #validate output filename
+        if self.outputFile!=None:
+            while os.path.exists(self.outputFile): #TODO add an option to override from the commandline
+                path, file_extension = os.path.splitext(self.outputFile)
+                print(f"\033[1mWarning\033[0m: File {self.outputFile} already exists")
+                print(f"Press 'Enter' to overwrite or enter '+' to rename into {path}_1{file_extension}")
+                new_filename=input("or enter new filename: ")
+                if new_filename=="":
+                    break
+                elif new_filename=="+": #TODO make it incrament filename count if similar filename already exists
+                    self.outputFile=path+"_1"+file_extension
+                else:
+                    self.outputFile=new_filename
 
     def addPixel(self,palette):
         palette.findMax2()

@@ -1,4 +1,3 @@
-from PIL import Image
 import math
 from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
@@ -139,12 +138,9 @@ if __name__ == "__main__":
     #parse arguments
     arguments=inputUtils.getInput()
 
-    #load initiate debug_InfoMenager and stamp start time
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
-    debug_InfoMenager.stampStartTime()
-
     #load image & put img.size into arguments
-    img = Image.open(arguments["image_filename"]) #TODO validate (write a seperate function)
+    img=inputUtils.getImage(arguments["image_filename"])
     imgpx = img.load()
     image_size=img.size
     arguments["image_size"] = image_size
@@ -158,8 +154,6 @@ if __name__ == "__main__":
         # print("Loading filterpalette:",arguments["filterpalettename"])
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
-    output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
-
     #TODO move this elsewhere
     if arguments["distance_calculation_mode"] == "m":
         calculate_distance=calculate_manhattan_distance
@@ -167,6 +161,10 @@ if __name__ == "__main__":
         calculate_distance=calculate_pythagorean_distance
     else:
         raise Exception("\033[1mIncorrect distance calculation mode specification")
+
+    output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
+
+    debug_InfoMenager.stampStartTime()
 
     ## doing the conversion
     # print image sizes

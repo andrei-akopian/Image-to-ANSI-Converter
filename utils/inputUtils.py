@@ -5,6 +5,8 @@ Read, load, cli, configs and other inputs
 
 import argparse
 import yaml
+import os
+from PIL import Image
 
 def getYamlFile(filepath):
     with open(filepath,"r") as f:
@@ -81,3 +83,15 @@ def processCharacters(raw_characters,raw_characterfile):
         return characters
     else:
         return raw_characters
+
+def getImage(image_filename):
+    if not os.path.exists(image_filename):
+        raise ValueError(f"\033[1m'{image_filename}' does not exist")
+    if not os.path.isfile(image_filename):
+        raise ValueError(f"\033[1m'{image_filename}' is not a file")
+    try: #TODO potentially add correct image suggestion
+        img = Image.open(image_filename)
+    except:
+        raise ValueError(f"\033[1m'{image_filename}' is not an image file")
+    else:
+        return img
