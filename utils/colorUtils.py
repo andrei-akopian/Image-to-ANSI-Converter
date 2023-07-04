@@ -53,6 +53,10 @@ class ColorPalette:
         self.muteable=True
         self.with_filter=False
 
+        #to store the max to colors .findMax2() from
+        self.color0=None
+        self.color1=None
+
     def addpoint(self,point):
         self.colorPoints.append(point)
         self.Raxis.insert(self.search(self.Raxis,point.r,key=lambda o: o.r),point)
@@ -73,6 +77,8 @@ class ColorPalette:
 
     def ground(self):
         cpI=0
+        self.color0=None
+        self.color1=None
         if self.muteable and self.with_filter:
             while cpI < len(self.colorPoints):
                 if self.colorPoints[cpI].is_filter:
@@ -128,9 +134,12 @@ class ColorPalette:
             secondMaxI=maxI
         if maxI==None:
             color_Point=ColorPoint([0,0,0])
-            return color_Point, color_Point
-            # raise Exception("\033[0m\033[1mYour filters filtered out a part of the image") #happens literraly all the time
-        return self.colorPoints[maxI], self.colorPoints[secondMaxI]
+            self.color0=color_Point
+            self.color1=color_Point
+        else:
+            self.color0=self.colorPoints[maxI]
+            self.color1=self.colorPoints[secondMaxI]
+        return self.color0, self.color1
 
 class ColorPoint:
     def __init__(self,color):

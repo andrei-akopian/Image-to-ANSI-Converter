@@ -27,7 +27,9 @@ class OutputManager:
             raise Exception("\033[1mYou can't have both no foreground and no background. (it's pointless)")
 
     def addPixel(self,palette):
-        pixel=self._generatePixel(palette)
+        palette.findMax2()
+        pixel=self._findAnsiColorCode(palette)
+        pixel+=self._findCharacter(palette)
         if not(self.hide):
             print(pixel,end="")
         if self.outputFile!=None:
@@ -59,21 +61,27 @@ class OutputManager:
                     f.write(item)
             print("\033[0mSaved output to\033[1m",self.outputFile,"\033[0m")
 
-    def _generatePixel(self,palette):
-            color0,color1=palette.findMax2()
-
-            pixel=""
+    def _findAnsiColorCode(self,palette):
+            ansi_color_code=""
 
             if self.foreground==True and self.background==True:
-                fraction_0=color0.weight/(color0.weight+color1.weight)
-                fraction_1=1-fraction_0
-                pixel+=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+color1.getForeground(),background=palette.background_prefix+color0.getBackground())
-                pixel+=self.characters[round(fraction_1*2*(len(self.characters)-1))]
+                ansi_color_code=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+palette.color1.getForeground(),background=palette.background_prefix+palette.color0.getBackground())
             elif self.foreground==True:
-                fraction_from_sample=color0.weight/(self.sample_size[0]*self.sample_size[1])
-                pixel+=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+color0.getForeground())
-                pixel+=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
+                ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+palette.color0.getForeground())
             elif self.background==True:
-                pixel+=palette.monopattern.format(ESC="\033",color=palette.background_prefix+color0.getBackground())
-                pixel+=" "
-            return pixel
+                ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.background_prefix+palette.color0.getBackground())
+            return ansi_color_code
+
+    def _findCharacter(self,palette):
+        character=""
+        if self.foreground==True and self.background==True:
+            fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
+            fraction_1=1-fraction_0
+            character=self.characters[round(fraction_1*2*(len(self.characters)-1))]
+        elif self.foreground==True:
+            fraction_from_sample=palette.color0.weight/(self.sample_size[0]*self.sample_size[1])
+            character=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
+        elif self.background==True:
+            character=" "
+        return character
+

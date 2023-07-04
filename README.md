@@ -90,4 +90,3 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] potentially use median colors
 - [ ] better cli
 - [ ] figure out the `.ans` file format and maybe make use of it
-- [ ] add manhattan distance
