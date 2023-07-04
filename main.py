@@ -10,7 +10,7 @@ def sample(imgpx,xa,ya,palette,arguments):
                 #contrast
                 newPoint.setContrast(arguments["contrast"],arguments["contrastbreak"])
                 #figuring out what that point does to the statistics
-                closestPoint, d = find_closest_colorPoint(palette, newPoint)
+                closestPoint, d = findClosestColorPoint(palette, newPoint)
                 if not(palette.muteable):
                     closestPoint.weight+=1
                 else:
@@ -42,7 +42,7 @@ def calculate_manhattan_distance(point0,point1):
     d+=abs(point0.b-point1.b)
     return d
 
-def find_closest_colorPoint(palette,targetPoint):
+def findClosestColorPointAndvanced(palette,targetPoint):
     """uses axis data structures in ColorPalette to quickly find closest point
     
     #< palette = ColorPalette
@@ -133,6 +133,16 @@ def find_closest_colorPoint(palette,targetPoint):
             lse: bmi=-1
     return closestPoint, min_d
 
+def findClosestColorPointBrute(palette,targetPoint):
+    min_d=800
+    closestPoint=None
+    for colorPoint in palette.colorPoints:
+        new_d=calculate_distance(colorPoint,targetPoint)
+        if new_d<min_d:
+            min_d=new_d
+            closestPoint=colorPoint
+    return closestPoint, min_d
+
 def setDistanceCalculationMode(distance_calculation_mode):
     if distance_calculation_mode == "m":
         calculate_distance=calculate_manhattan_distance
@@ -141,6 +151,16 @@ def setDistanceCalculationMode(distance_calculation_mode):
     else:
         raise Exception("\033[1mIncorrect distance calculation mode specification")
     return calculate_distance
+
+#TODO rename literraly the enitre operation
+def setClosestColorPointMode(find_closest_color_point_mode):
+    if find_closest_color_point_mode == "a":
+        findClosestColorPoint=findClosestColorPointAndvanced
+    elif find_closest_color_point_mode == "b":
+        findClosestColorPoint=findClosestColorPointBrute
+    else:
+        raise Exception("\033[1mIncorrect find closest color point mode specification")
+    return findClosestColorPoint
 
 if __name__ == "__main__":
     #parse arguments
@@ -164,8 +184,14 @@ if __name__ == "__main__":
         # print("Loading filterpalette:",arguments["filterpalettename"])
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
-    calculate_distance = setDistanceCalculationMode(arguments["distance_calculation_mode"])
-
+    #algorithm specifications
+    if arguments["argumentfile"]!=None:
+        calculate_distance = setDistanceCalculationMode(arguments["distance_calculation_mode"])
+        findClosestColorPoint = setClosestColorPointMode(arguments["find_closest_color_point_mode"]) #TODO if using brute, don't set up the color Axis
+    else:
+        calculate_distance = setDistanceCalculationMode("p")
+        findClosestColorPoint = setClosestColorPointMode("a")
+    
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
     debug_InfoMenager.stampStartTime()

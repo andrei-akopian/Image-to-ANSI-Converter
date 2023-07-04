@@ -9,7 +9,7 @@ sample_size: [16, 16]
 output_size: null
 contrastbreak: 128
 blur: 30
-distance_calculation_mode: p
+distance_calculation_mode: p #TODO rename mode to algorithm
 
 hide: False
 palettename: null
@@ -18,6 +18,9 @@ characters: \'^:!=*$%@#
 characterfile: null
 foreground: True
 background: True
+
+#TODO rename mode to algorithm
+find_closest_color_point_mode: a #a-advanced, b-brute
 
 use_debug: True
 debug:

@@ -41,7 +41,6 @@ def parsecli(ArgsParserArguments):
     parser.add_argument("-s","--sample_size",default=ArgsParserArguments["sample_size"]["default"],help=ArgsParserArguments["sample_size"]["help"])
     parser.add_argument("-os","--output_size",default=ArgsParserArguments["output_size"]["default"],help=ArgsParserArguments["output_size"]["help"])
     parser.add_argument("-b","--blur",default=ArgsParserArguments["blur"]["default"],help=ArgsParserArguments["blur"]["help"])
-    parser.add_argument("-dcm","--distance_calculation_mode",default=ArgsParserArguments["distance_calculation_mode"]["default"],help=ArgsParserArguments["distance_calculation_mode"]["help"])
 
     parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
     parser.add_argument("-p","--palettename",default=ArgsParserArguments["palettename"]["default"],help=ArgsParserArguments["palettename"]["help"])
@@ -66,7 +65,6 @@ def processInputs(raw_arguments):
         "sample_size":processSampleSize(raw_arguments.sample_size), #tuple [w,h],
         "output_size":raw_arguments.output_size, #tuple [w,h]
         "blur":int(raw_arguments.blur),
-        "distance_calculation_mode":raw_arguments.distance_calculation_mode,
         "image_size":[0,0], #modified after image is parsed
 
         "hide":raw_arguments.hide,
