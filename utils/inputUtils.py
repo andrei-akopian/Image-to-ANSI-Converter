@@ -7,6 +7,7 @@ import argparse
 import yaml
 import os
 from PIL import Image
+import math
 
 def getYamlFile(filepath):
     with open(filepath,"r") as f:
@@ -15,21 +16,26 @@ def getYamlFile(filepath):
 def getInput():
     argparseArguments=getYamlFile("utils/argparseArguments.yaml")
     raw_arguments=parsecli(argparseArguments["Arguments"])
-    arguments=processInputs(raw_arguments) #dictionary
+    if raw_arguments.argumentfile!=None: #TODO make it so that custom inputs overwrite fileinput
+        arguments=getYamlFile(raw_arguments.argumentfile)
+    else:
+        arguments=processInputs(raw_arguments) #dictionary
     return arguments
 
-def parsecli(ArgsParserArguments): #TODO rewrite it so that all the parameters can be specified in yaml
+def parsecli(ArgsParserArguments):
     parser=argparse.ArgumentParser(
         prog="Image to ANSI converter"
     )
+
+    parser.add_argument("-af","--argumentfile",default=ArgsParserArguments["argumentfile"]["default"],help=ArgsParserArguments["argumentfile"]["help"])
 
     parser.add_argument("-f","--filename",default=ArgsParserArguments["filename"]["default"],help=ArgsParserArguments["filename"]["help"])
     parser.add_argument("-o","--output",nargs='?',default=ArgsParserArguments["output"]["default"],const=ArgsParserArguments["output"]["const"],help=ArgsParserArguments["output"]["help"])
 
     parser.add_argument("-c","--contrast",default=ArgsParserArguments["contrast"]["default"],help=ArgsParserArguments["contrast"]["help"])
     parser.add_argument("-cb","--contrastbreak",default=ArgsParserArguments["contrastbreak"]["default"],help=ArgsParserArguments["contrastbreak"]["help"])
-    parser.add_argument("-s","--sampleSize",default=ArgsParserArguments["sampleSize"]["default"],help=ArgsParserArguments["sampleSize"]["help"])
-    parser.add_argument("-os","--outputSize",default=ArgsParserArguments["outputSize"]["default"],help=ArgsParserArguments["outputSize"]["help"])
+    parser.add_argument("-s","--sample_size",default=ArgsParserArguments["sample_size"]["default"],help=ArgsParserArguments["sample_size"]["help"])
+    parser.add_argument("-os","--output_size",default=ArgsParserArguments["output_size"]["default"],help=ArgsParserArguments["output_size"]["help"])
     parser.add_argument("-b","--blur",default=ArgsParserArguments["blur"]["default"],help=ArgsParserArguments["blur"]["help"])
     parser.add_argument("-dcm","--distance_calculation_mode",default=ArgsParserArguments["distance_calculation_mode"]["default"],help=ArgsParserArguments["distance_calculation_mode"]["help"])
 
@@ -52,7 +58,7 @@ def processInputs(raw_arguments):
         "contrast":int(raw_arguments.contrast),
         "contrastbreak":int(raw_arguments.contrastbreak),
         "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h],
-        "output_size":raw_arguments.outputSize, #tuple [w,h]
+        "output_size":raw_arguments.output_size, #tuple [w,h]
         "blur":int(raw_arguments.blur),
         "distance_calculation_mode":raw_arguments.distance_calculation_mode,
         "image_size":[0,0], #modified after image is parsed
@@ -84,12 +90,31 @@ def processCharacters(raw_characters,raw_characterfile):
     else:
         return raw_characters
 
+def processOutputSize(image_size,output_size,sample_size):
+    """
+    #< image_size = (w,h)
+    #< output_size = (w,h) or "WxH"
+
+    #> sample_size = [w,h]
+    """
+    if output_size!=None:
+        if output_size==str: #* It could also be a list
+            try:
+                output_size=list(map(int,output_size.split("x")))
+                if len(output_size)!=2:
+                    raise Exception(f"\033[1m Incorrect --output_size input. Specify as WxH eg. 20x20")
+            except:
+                raise Exception(f"\033[1m Bad --output_size input. Specify as WxH eg. 20x20")
+        sample_size[0],sample_size[1]=math.ceil(image_size[0]/output_size[0]),math.ceil(image_size[1]/output_size[1])
+
+    return sample_size
+
 def getImage(image_filename):
     if not os.path.exists(image_filename):
         raise ValueError(f"\033[1m'{image_filename}' does not exist")
     if not os.path.isfile(image_filename):
         raise ValueError(f"\033[1m'{image_filename}' is not a file")
-    try: #TODO potentially add correct image suggestion
+    try: #TODO potentially add correct filename suggestion
         img = Image.open(image_filename)
     except:
         raise ValueError(f"\033[1m'{image_filename}' is not an image file")

@@ -1,0 +1,20 @@
+argumentfile: fileinput.yaml
+
+image_filename: image.png
+output_filename: output.txt
+
+contrast: 1
+
+sample_size: [16, 16]
+output_size: null
+contrastbreak: 128
+blur: 30
+distance_calculation_mode: p
+
+hide: False
+palettename: null
+filterpalettename: null
+characters: \'^:!=*$%@#
+characterfile: null
+foreground: True
+background: True

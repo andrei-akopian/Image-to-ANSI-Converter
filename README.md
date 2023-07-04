@@ -72,10 +72,8 @@ Starry Night by Vincent van Gogh with 1.2 contrast and 80 contrast break and sam
 Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/media/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg)
 
 ## TODO
-- [ ] make better output file handler (file formats)
 - [ ] generate output images so user doesn't have to screenshort them
 - [ ] improve contrast algorithm
-- [ ] make "setsize" instead of sampleSize- so it is not user friendly
 - [ ] contrast is probably messing with the sampling algorithm
 - [ ] better character sets arguments
 - [ ] add nocolor
@@ -90,4 +88,3 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] potentially use median colors
 - [ ] better cli
 - [ ] figure out the `.ans` file format and maybe make use of it
-- [ ] display size of the output file

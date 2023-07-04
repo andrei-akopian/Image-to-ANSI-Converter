@@ -1,4 +1,3 @@
-import math
 from utils import colorUtils, inputUtils, outputUtils, debugInfoUtils
 
 def sample(imgpx,xa,ya,palette,arguments):
@@ -133,7 +132,16 @@ def find_closest_colorPoint(palette,targetPoint):
                     bmi+=1
             lse: bmi=-1
     return closestPoint, min_d
-                
+
+def setDistanceCalculationMode(distance_calculation_mode):
+    if distance_calculation_mode == "m":
+        calculate_distance=calculate_manhattan_distance
+    elif distance_calculation_mode == "p":
+        calculate_distance=calculate_pythagorean_distance
+    else:
+        raise Exception("\033[1mIncorrect distance calculation mode specification")
+    return calculate_distance
+
 if __name__ == "__main__":
     #parse arguments
     arguments=inputUtils.getInput()
@@ -144,9 +152,7 @@ if __name__ == "__main__":
     imgpx = img.load()
     image_size=img.size
     arguments["image_size"] = image_size
-    if arguments["output_size"]!=None:
-        arguments["output_size"]=list(map(int,arguments["output_size"].split("x")))
-        arguments["sample_size"]=[math.ceil(image_size[0]/arguments["output_size"][0]),math.ceil(image_size[1]/arguments["output_size"][1])]
+    arguments["sample_size"] = inputUtils.processOutputSize(image_size,arguments["output_size"],arguments["sample_size"])
 
     #create/load palette:
     palette=colorUtils.loadPalette(arguments["palettename"])
@@ -154,13 +160,7 @@ if __name__ == "__main__":
         # print("Loading filterpalette:",arguments["filterpalettename"])
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
-    #TODO move this elsewhere
-    if arguments["distance_calculation_mode"] == "m":
-        calculate_distance=calculate_manhattan_distance
-    elif arguments["distance_calculation_mode"] == "p":
-        calculate_distance=calculate_pythagorean_distance
-    else:
-        raise Exception("\033[1mIncorrect distance calculation mode specification")
+    calculate_distance = setDistanceCalculationMode(arguments["distance_calculation_mode"])
 
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 

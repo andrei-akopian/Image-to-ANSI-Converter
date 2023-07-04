@@ -1,4 +1,8 @@
 Arguments:
+  argumentfile:
+    default: null
+    help: "pass arguments through a yaml file"
+
   filename: 
     default: image.png
     help: "Filepath to your image, the default image name is image.png"
@@ -10,10 +14,10 @@ Arguments:
   contrast:
     default: 1
     help: "allows you to change the contrast of the image for better results. (recomended 1 - 1.2 range)"
-  sampleSize: 
+  sample_size: 
     default: 16x16
     help: "Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X (XxX)"
-  outputSize:
+  output_size:
     default: null
     help: "instead of sampleSize, set the size you want to image to be in characters. Enter as WxH."
   contrastbreak: 

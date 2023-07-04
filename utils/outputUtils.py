@@ -29,7 +29,7 @@ class OutputManager:
             raise Exception("\033[1mYou can't have both no foreground and no background. (it's pointless)")
         #validate output filename
         if self.outputFile!=None:
-            while os.path.exists(self.outputFile): #TODO add an option to override from the commandline
+            while os.path.exists(self.outputFile): #TODO add an option to override from the clargs
                 path, file_extension = os.path.splitext(self.outputFile)
                 print(f"\033[1mWarning\033[0m: File {self.outputFile} already exists")
                 print(f"Press 'Enter' to overwrite or enter '+' to rename into {path}_1{file_extension}")
@@ -64,17 +64,13 @@ class OutputManager:
             self.output_Content.append("\n")
 
     def createOutputFile(self):
-        if self.hide: #replace the percentage message from .addNewLine()
+        if self.hide: #replaces the percentage message from .addNewLine()
             print("\rDone   ")
         if self.outputFile!=None:
-            #TODO rework this part about filename extension checks
-            #TODO validate (check if perhaps repeating filename)
-            if not('.' in self.outputFile):
-                self.outputFile+='.txt'
             with open(self.outputFile,"w") as f:
                 for item in self.output_Content:
                     f.write(item)
-            print("\033[0mSaved output to\033[1m",self.outputFile,"\033[0m")
+            print(f"\033[0mSaved {os.path.getsize(self.outputFile)} bytes to\033[1m {self.outputFile}\033[0m")
 
     def _findAnsiColorCode(self,palette):
             ansi_color_code=""
