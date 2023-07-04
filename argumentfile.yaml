@@ -1,4 +1,4 @@
-argumentfile: fileinput.yaml
+argumentfile: argumentfile.yaml
 
 image_filename: image.png
 output_filename: output.txt
@@ -18,3 +18,7 @@ characters: \'^:!=*$%@#
 characterfile: null
 foreground: True
 background: True
+
+use_debug: True
+debug:
+  stamp_interval_times: True

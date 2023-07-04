@@ -146,7 +146,11 @@ if __name__ == "__main__":
     #parse arguments
     arguments=inputUtils.getInput()
 
+    if arguments["argumentfile"]==None:
+        arguments["use_debug"]=False
+
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
+
     #load image & put img.size into arguments
     img=inputUtils.getImage(arguments["image_filename"])
     imgpx = img.load()
@@ -178,8 +182,10 @@ if __name__ == "__main__":
             palette=sample(imgpx,xa,ya,palette=palette,arguments=arguments)
             output_Manager.addPixel(palette)
 
-        debug_InfoMenager.stampInterval()
-        debug_InfoMenager.printLastInterval()
+        if arguments["use_debug"]:
+            if arguments["debug"]["stamp_interval_times"]:
+                debug_InfoMenager.stampInterval()
+                debug_InfoMenager.printLastInterval()
 
         output_Manager.endLine(ya)
 

@@ -13,6 +13,7 @@ def getYamlFile(filepath):
     with open(filepath,"r") as f:
         return yaml.safe_load(f)
 
+#TODO fix this. Make all default arguments come from argumentfile. Tracking defaults from user inputs is impossible
 def getInput():
     argparseArguments=getYamlFile("utils/argparseArguments.yaml")
     raw_arguments=parsecli(argparseArguments["Arguments"])
@@ -20,6 +21,9 @@ def getInput():
         arguments=getYamlFile(raw_arguments.argumentfile)
     else:
         arguments=processInputs(raw_arguments) #dictionary
+    return arguments
+
+def overwriteDefaultArguments(arguments,raw_arguments,argparseArguments):
     return arguments
 
 def parsecli(ArgsParserArguments):
