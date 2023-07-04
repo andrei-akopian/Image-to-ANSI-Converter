@@ -56,12 +56,14 @@ def parsecli(ArgsParserArguments):
 def processInputs(raw_arguments):
     #TODO many values need validation (add vlidation in the appropriate places) (value range validation)
     arguments={
+        "argumentfile":raw_arguments.argumentfile,
+
         "image_filename":raw_arguments.filename,
         "output_filename":raw_arguments.output,
 
         "contrast":int(raw_arguments.contrast),
         "contrastbreak":int(raw_arguments.contrastbreak),
-        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h],
+        "sample_size":processSampleSize(raw_arguments.sample_size), #tuple [w,h],
         "output_size":raw_arguments.output_size, #tuple [w,h]
         "blur":int(raw_arguments.blur),
         "distance_calculation_mode":raw_arguments.distance_calculation_mode,
@@ -76,13 +78,13 @@ def processInputs(raw_arguments):
     }
     return arguments
 
-def processSampleSize(raw_sampleSize):
-    if "x" in raw_sampleSize:
-        sampleSize=list(map(int,raw_sampleSize.split("x")))
+def processSampleSize(raw_sample_size):
+    if "x" in raw_sample_size:
+        sample_size=list(map(int,raw_sample_size.split("x")))
     else:
-        int_sampleSize=int(raw_sampleSize)
-        sampleSize=[int_sampleSize,int_sampleSize]
-    return sampleSize
+        int_sample_size=int(raw_sample_size)
+        sample_size=[int_sample_size,int_sample_size]
+    return sample_size
 
 def processCharacters(raw_characters,raw_characterfile): 
     #< [str, None or str] 

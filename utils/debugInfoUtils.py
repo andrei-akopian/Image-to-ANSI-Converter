@@ -50,7 +50,7 @@ class DebugInfoManager:
          print("ANSI Size:",math.ceil(image_size[0]/sampleSize[0]),math.ceil(image_size[1]/sampleSize[1]),"chr")
 
     def printRunTime(self):
-        print("Converstion Time:",round(self.getRunTime(),7),"s")
+        print("\033[0mConverstion Time:",round(self.getRunTime(),7),"s")
     
     def printLastInterval(self):
         #put this under an option

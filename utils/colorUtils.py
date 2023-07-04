@@ -1,15 +1,27 @@
 import json
+import os
 
 def loadPalette(palettename):
     palette=ColorPalette()
     #if custom palette provided -> load it
     if palettename!=None:
         #open file
-        if not("/" in palettename): #TODO add validation
-            palettename="palettes/"+palettename+".json"
-        data={}
-        with open(palettename,"r") as f:
-            data=json.load(f)
+        path, file_extension = os.path.splitext(palettename)
+        if file_extension!=".json": #TODO make these messages more clean
+            palettename+=".json"
+            print(f".json was autoappended to palettename: {palettename}")
+        if not ("/" in path):
+            palettename="palettes/"+palettename
+            print(f"path to palettes direcotry was autoappended to palettename: {palettename}")
+        if not os.path.exists(palettename):
+            raise ValueError(f"\033[1m'{palettename}' does not exist")
+        if not os.path.isfile(palettename):
+            raise ValueError(f"\033[1m'{palettename}' is not a file")
+        try: #TODO potentially add correct filename suggestion
+            with open(palettename,"r") as f:
+                data=json.load(f)
+        except:
+            raise ValueError(f"\033[1m'{palettename}' couldn't load palette")
         #create palette
         palette.muteable=False
         palette.monopattern=data["monopattern"]
@@ -26,11 +38,22 @@ def loadPalette(palettename):
 
 def loadFilter(filterpalettename,palette):
     #open file
-    if not("/" in filterpalettename): #TODO add validation
-        filterpalettename="palettes/"+filterpalettename+".json"
-    data={}
-    with open(filterpalettename,"r") as f:
-        data=json.load(f)
+    path, file_extension = os.path.splitext(filterpalettename)
+    if file_extension!=".json": #TODO make these messages more clean
+        filterpalettename+=".json"
+        print(f".json was autoappended to filter palettename: {filterpalettename}")
+    if not ("/" in path):
+        filterpalettename="palettes/"+filterpalettename
+        print(f"path to palettes direcotry was autoappended to filter palettename: {filterpalettename}")
+    if not os.path.exists(filterpalettename):
+        raise ValueError(f"\033[1m'{filterpalettename}' does not exist")
+    if not os.path.isfile(filterpalettename):
+        raise ValueError(f"\033[1m'{filterpalettename}' is not a file")
+    try: #TODO potentially add correct filename suggestion
+        with open(filterpalettename,"r") as f:
+            data=json.load(f)
+    except:
+        raise ValueError(f"\033[1m'{filterpalettename}' couldn't load filter palette")
     #add the filters to palette
     palette.with_filter=True
     for cp in data["colors"]: #TODO allow a simpler version of filter palettes
