@@ -13,67 +13,57 @@ def getYamlFile(filepath):
     with open(filepath,"r") as f:
         return yaml.safe_load(f)
 
-#TODO fix this. Make all default arguments come from argumentfile. Tracking defaults from user inputs is impossible
 def getInput():
-    argparseArguments=getYamlFile("utils/argparseArguments.yaml")
-    raw_arguments=parsecli(argparseArguments["Arguments"])
-    if raw_arguments.argumentfile!=None: #TODO make it so that custom inputs overwrite fileinput
-        arguments=getYamlFile(raw_arguments.argumentfile)
+    argparse_help_messages=getYamlFile("utils/argparseHelpMessages.yaml")
+    raw_arguments=parsecli(argparse_help_messages)
+
+    if raw_arguments["argumentfile"]!=None:
+        arguments=getYamlFile(raw_arguments["argumentfile"])
     else:
-        arguments=processInputs(raw_arguments) #dictionary
+        arguments=getYamlFile("utils/defaultargumentfile.yaml")
+    arguments=processInputs(arguments,raw_arguments)
+
     return arguments
 
-def overwriteDefaultArguments(arguments,raw_arguments,argparseArguments):
-    return arguments
-
-def parsecli(ArgsParserArguments):
+def parsecli(argparse_help_messages):
     parser=argparse.ArgumentParser(
         prog="Image to ANSI converter"
     )
 
-    parser.add_argument("-af","--argumentfile",default=ArgsParserArguments["argumentfile"]["default"],help=ArgsParserArguments["argumentfile"]["help"])
+    parser.add_argument("-af","--argumentfile",required=False,help=argparse_help_messages["argumentfile"]["help"])
 
-    parser.add_argument("-f","--filename",default=ArgsParserArguments["filename"]["default"],help=ArgsParserArguments["filename"]["help"])
-    parser.add_argument("-o","--output",nargs='?',default=ArgsParserArguments["output"]["default"],const=ArgsParserArguments["output"]["const"],help=ArgsParserArguments["output"]["help"])
+    parser.add_argument("-f","--filename",required=False,help=argparse_help_messages["filename"]["help"])
+    parser.add_argument("-o","--output",action="store_const",required=False,const=argparse_help_messages["output"]["const"],help=argparse_help_messages["output"]["help"])
 
-    parser.add_argument("-c","--contrast",default=ArgsParserArguments["contrast"]["default"],help=ArgsParserArguments["contrast"]["help"])
-    parser.add_argument("-cb","--contrastbreak",default=ArgsParserArguments["contrastbreak"]["default"],help=ArgsParserArguments["contrastbreak"]["help"])
-    parser.add_argument("-s","--sample_size",default=ArgsParserArguments["sample_size"]["default"],help=ArgsParserArguments["sample_size"]["help"])
-    parser.add_argument("-os","--output_size",default=ArgsParserArguments["output_size"]["default"],help=ArgsParserArguments["output_size"]["help"])
-    parser.add_argument("-b","--blur",default=ArgsParserArguments["blur"]["default"],help=ArgsParserArguments["blur"]["help"])
+    parser.add_argument("-c","--contrast",required=False,help=argparse_help_messages["contrast"]["help"])
+    parser.add_argument("-cb","--contrastbreak",required=False,help=argparse_help_messages["contrastbreak"]["help"])
+    parser.add_argument("-s","--sample_size",required=False,help=argparse_help_messages["sample_size"]["help"])
+    parser.add_argument("-os","--output_size",required=False,help=argparse_help_messages["output_size"]["help"])
+    parser.add_argument("-b","--blur",required=False,help=argparse_help_messages["blur"]["help"])
 
-    parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
-    parser.add_argument("-p","--palettename",default=ArgsParserArguments["palettename"]["default"],help=ArgsParserArguments["palettename"]["help"])
-    parser.add_argument("-fp","--filterpalettename",default=ArgsParserArguments["filterpalettename"]["default"],help=ArgsParserArguments["filterpalettename"]["help"])
-    parser.add_argument("-char","--characters", default=ArgsParserArguments["characters"]["default"], help=ArgsParserArguments["characters"]["help"])
-    parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"]["default"], help=ArgsParserArguments["characterfile"]["help"])
-    parser.add_argument("-nfg","--noforeground",action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"]["default"], help=ArgsParserArguments["background"]["help"])
-    parser.add_argument("-nbg","--nobackground",nargs='?',const=False,default=ArgsParserArguments["foreground"]["default"], dest="background", help=ArgsParserArguments["foreground"]["help"])
+    parser.add_argument("--hide", action='store_true', required=False, help=argparse_help_messages["hide"]["help"])
+    parser.add_argument("-p","--palettename",required=False,help=argparse_help_messages["palettename"]["help"])
+    parser.add_argument("-fp","--filterpalettename",required=False,help=argparse_help_messages["filterpalettename"]["help"])
+    parser.add_argument("-char","--characters", required=False, help=argparse_help_messages["characters"]["help"])
+    parser.add_argument("-charf","--characterfile", required=False, help=argparse_help_messages["characterfile"]["help"])
+    parser.add_argument("-nfg","--noforeground",action='store_false', dest="foreground", required=False, help=argparse_help_messages["background"]["help"])
+    parser.add_argument("-nbg","--nobackground",action='store_false', dest="background", required=False, help=argparse_help_messages["foreground"]["help"])
 
-    return parser.parse_args()
+    return vars(parser.parse_args())
 
-def processInputs(raw_arguments):
+def processInputs(arguments,raw_arguments):
     #TODO many values need validation (add vlidation in the appropriate places) (value range validation)
-    arguments={
-        "argumentfile":raw_arguments.argumentfile,
-
-        "image_filename":raw_arguments.filename,
-        "output_filename":raw_arguments.output,
-
-        "contrast":int(raw_arguments.contrast),
-        "contrastbreak":int(raw_arguments.contrastbreak),
-        "sample_size":processSampleSize(raw_arguments.sample_size), #tuple [w,h],
-        "output_size":raw_arguments.output_size, #tuple [w,h]
-        "blur":int(raw_arguments.blur),
-        "image_size":[0,0], #modified after image is parsed
-
-        "hide":raw_arguments.hide,
-        "palettename":raw_arguments.palettename,
-        "filterpalettename":raw_arguments.filterpalettename,
-        "characters":processCharacters(raw_arguments.characters,raw_arguments.characterfile), #str
-        "foreground":raw_arguments.foreground,
-        "background":raw_arguments.background
-    }
+    for key in raw_arguments.keys():
+        if raw_arguments[key]!=None:
+            match key:
+                case "contrast" | "contrastbreak" | "blur":
+                    arguments[key]=int(raw_arguments[key])
+                case "sample_size":
+                    arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
+                case "characters":
+                    arguments[key]=processCharacters(raw_arguments[key]) #str
+                case _:
+                    arguments[key]=raw_arguments[key]
     return arguments
 
 def processSampleSize(raw_sample_size):

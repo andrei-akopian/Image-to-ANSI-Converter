@@ -166,9 +166,6 @@ if __name__ == "__main__":
     #parse arguments
     arguments=inputUtils.getInput()
 
-    if arguments["argumentfile"]==None:
-        arguments["use_debug"]=False
-
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
 
     #load image & put img.size into arguments
@@ -185,12 +182,8 @@ if __name__ == "__main__":
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
     #algorithm specifications
-    if arguments["argumentfile"]!=None:
-        calculate_distance = setDistanceCalculationMode(arguments["distance_calculation_mode"])
-        findClosestColorPoint = setClosestColorPointMode(arguments["find_closest_color_point_mode"]) #TODO if using brute, don't set up the color Axis
-    else:
-        calculate_distance = setDistanceCalculationMode("p")
-        findClosestColorPoint = setClosestColorPointMode("a")
+    calculate_distance = setDistanceCalculationMode(arguments["distance_calculation_mode"])
+    findClosestColorPoint = setClosestColorPointMode(arguments["find_closest_color_point_mode"]) #TODO if using brute, don't set up the color Axis
     
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
