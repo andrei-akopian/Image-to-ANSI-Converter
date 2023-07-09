@@ -75,17 +75,21 @@ class OutputManager:
     def _findAnsiColorCode(self,palette):
             ansi_color_code=""
 
-            if self.foreground==True and self.background==True:
+            if self.foreground and self.background==True:
                 ansi_color_code=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+palette.color1.getForeground(),background=palette.background_prefix+palette.color0.getBackground())
-            elif self.foreground==True:
+            elif self.foreground:
                 ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+palette.color0.getForeground())
-            elif self.background==True:
+            elif self.background:
                 ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.background_prefix+palette.color0.getBackground())
             return ansi_color_code
 
     def _findCharacter(self,palette):
         character=""
-        if self.foreground==True and self.background==True:
+        if self.foreground=="b" and self.background==True:
+            character=self.characters[round(palette.color1.getBrightness()*(len(self.characters))/256)]
+        elif self.foreground=="b":
+            character=self.characters[round(palette.color0.getBrightness()*(len(self.characters))/256)]
+        elif self.foreground==True and self.background==True:
             fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
             fraction_1=1-fraction_0
             character=self.characters[round(fraction_1*2*(len(self.characters)-1))]

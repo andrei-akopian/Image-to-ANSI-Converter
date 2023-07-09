@@ -1,10 +1,9 @@
 argumentfile: argumentfile.yaml
 
 image_filename: image.png
-output_filename: output.txt
+output_filename: null
 
 contrast: 1
-
 sample_size: [16, 16]
 output_size: null
 contrastbreak: 128
@@ -16,8 +15,8 @@ palettename: null
 filterpalettename: null
 characters: \'^:!=*$%@#
 characterfile: null
-foreground: True
-background: True
+foreground: True #True | False | b for brightness based
+background: True #True | False | custom background code
 
 #TODO rename mode to algorithm
 find_closest_color_point_mode: a #a-advanced, b-brute

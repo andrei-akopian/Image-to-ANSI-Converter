@@ -46,8 +46,8 @@ def parsecli(argparse_help_messages):
     parser.add_argument("-fp","--filterpalettename",required=False,help=argparse_help_messages["filterpalettename"]["help"])
     parser.add_argument("-char","--characters", required=False, help=argparse_help_messages["characters"]["help"])
     parser.add_argument("-charf","--characterfile", required=False, help=argparse_help_messages["characterfile"]["help"])
-    parser.add_argument("-nfg","--noforeground",action='store_false', dest="foreground", required=False, help=argparse_help_messages["background"]["help"])
-    parser.add_argument("-nbg","--nobackground",action='store_false', dest="background", required=False, help=argparse_help_messages["foreground"]["help"])
+    parser.add_argument("-nfg","--noforeground",nargs="?", const=False, dest="foreground", required=False, help=argparse_help_messages["background"]["help"])
+    parser.add_argument("-nbg","--nobackground",nargs="?", const=False, dest="background", required=False, help=argparse_help_messages["foreground"]["help"])
 
     return vars(parser.parse_args())
 
