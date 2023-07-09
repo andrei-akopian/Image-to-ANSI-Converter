@@ -37,8 +37,13 @@ class OutputManager:
                 new_filename=input("or enter new filename: ")
                 if new_filename=="":
                     break
-                elif new_filename=="+": #TODO make it incrament filename count if similar filename already exists
-                    self.outputFile=path+"_1"+file_extension
+                elif new_filename=="+":
+                    i=1
+                    new_filename=path+"_1"+file_extension
+                    while os.path.exists(new_filename):
+                        i+=1
+                        new_filename=path+"_"+str(i)+file_extension
+                    self.outputFile=new_filename
                 else:
                     self.outputFile=new_filename
 

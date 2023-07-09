@@ -33,7 +33,7 @@ def parsecli(argparse_help_messages):
     parser.add_argument("-af","--argumentfile",required=False,help=argparse_help_messages["argumentfile"]["help"])
 
     parser.add_argument("-f","--filename",required=False,help=argparse_help_messages["filename"]["help"])
-    parser.add_argument("-o","--output",action="store_const",required=False,const=argparse_help_messages["output"]["const"],help=argparse_help_messages["output"]["help"])
+    parser.add_argument("-o","--output_filename",nargs="?",required=False,const=argparse_help_messages["output"]["const"],help=argparse_help_messages["output"]["help"])
 
     parser.add_argument("-c","--contrast",required=False,help=argparse_help_messages["contrast"]["help"])
     parser.add_argument("-cb","--contrastbreak",required=False,help=argparse_help_messages["contrastbreak"]["help"])
