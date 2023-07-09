@@ -78,13 +78,13 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better character sets arguments
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
-- [ ] allow passing arguments through a file `-cf` (.yaml or .json)
 - [ ] add svg character selector
 - [ ] add support for UTF-8 characters
 - [ ] add something about terminal size
 - [ ] add csv export of pixels
 - [ ] maybe try writing to the file as the program is running
 - [ ] some kind of chaching&optimization or lossy compression
-- [ ] potentially use median colors
+- [ ] a better sampling alg
 - [ ] better cli
 - [ ] figure out the `.ans` file format and maybe make use of it
+- [ ] better palletes 

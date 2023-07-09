@@ -15,7 +15,8 @@ palettename: null
 filterpalettename: null
 characters: \'^:!=*$%@#
 characterfile: null
-foreground: True #True | False | b for brightness based
+brightness_based_character_selection: False #True | False
+foreground: True #True | False
 background: True #True | False | custom background code
 
 #TODO rename mode to algorithm

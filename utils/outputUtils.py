@@ -20,6 +20,7 @@ class OutputManager:
         self.characters = arguments["characters"] #str
         self.image_size = arguments["image_size"] #tuple
         self.sample_size = arguments["sample_size"]
+        self.brightness_based_character_selection = arguments["brightness_based_character_selection"]
     
     def validateArguments(self):
         if self.hide:
@@ -85,10 +86,12 @@ class OutputManager:
 
     def _findCharacter(self,palette):
         character=""
-        if self.foreground=="b" and self.background==True:
+        
+        if self.brightness_based_character_selection==True and self.background==True:
             character=self.characters[round(palette.color1.getBrightness()*(len(self.characters))/256)]
-        elif self.foreground=="b":
+        elif self.brightness_based_character_selection==True:
             character=self.characters[round(palette.color0.getBrightness()*(len(self.characters))/256)]
+
         elif self.foreground==True and self.background==True:
             fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
             fraction_1=1-fraction_0
