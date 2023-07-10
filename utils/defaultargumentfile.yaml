@@ -22,6 +22,6 @@ background: True #True | False | custom background code
 #TODO rename mode to algorithm
 find_closest_color_point_mode: a #a-advanced, b-brute
 
-use_debug: False
+use_debug: True
 debug:
   stamp_interval_times: True

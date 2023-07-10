@@ -88,3 +88,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better cli
 - [ ] figure out the `.ans` file format and maybe make use of it
 - [ ] better palletes 
+- [ ] Make an interface app

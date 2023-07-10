@@ -33,14 +33,15 @@ def calculate_pythagorean_distance(point0,point1):
     d+=abs(point0.r-point1.r)**2
     d+=abs(point0.g-point1.g)**2
     d+=abs(point0.b-point1.b)**2
-    return d**0.5
+    d=d**0.5
+    return d, d/1.7321 #d/sqrt(3)
 
 def calculate_manhattan_distance(point0,point1):
     d=0
     d+=abs(point0.r-point1.r)
     d+=abs(point0.g-point1.g)
     d+=abs(point0.b-point1.b)
-    return d
+    return d, d/3
 
 def findClosestColorPointAndvanced(palette,targetPoint):
     """uses axis data structures in ColorPalette to quickly find closest point
@@ -61,71 +62,78 @@ def findClosestColorPointAndvanced(palette,targetPoint):
     bpi=palette.search(palette.Raxis,targetPoint.b,key=lambda o: o.b)
     bmi=bpi-1
     min_d=800 #255*3
+    check_d=800 #how far to check
     closestPoint=None
     n=1
     while n>0:
         n=0 #detect if any changes occured
         if rpi>-1 and rpi<len(palette.Raxis):
-            if abs(palette.Raxis[rpi].r-targetPoint.r)<min_d:
+            if abs(palette.Raxis[rpi].r-targetPoint.r)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Raxis[rpi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Raxis[rpi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Raxis[rpi]
                     rpi=-1
                 else:
                     rpi+=1
             else: rpi=-1
         if rmi>-1 and rmi<len(palette.Raxis):
-            if abs(palette.Raxis[rmi].r-targetPoint.r)<min_d:
+            if abs(palette.Raxis[rmi].r-targetPoint.r)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Raxis[rmi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Raxis[rmi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Raxis[rmi]
                     rmi=-1
                 else:
                     rmi-=1
             else: rmi=-1
         if gpi>-1 and gpi<len(palette.Gaxis): 
-            if abs(palette.Gaxis[gpi].g-targetPoint.g)<min_d:
+            if abs(palette.Gaxis[gpi].g-targetPoint.g)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Gaxis[gpi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Gaxis[gpi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Gaxis[gpi]
                     gpi=-1
                 else:
                     gpi+=1
             else: gpi=-1
         if gmi>-1 and gmi<len(palette.Gaxis):
-            if abs(palette.Gaxis[gmi].g-targetPoint.g)<min_d:
+            if abs(palette.Gaxis[gmi].g-targetPoint.g)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Gaxis[gmi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Gaxis[gmi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Gaxis[gmi]
                     gmi=-1
                 else:
                     gmi-=1
             else: gmi=-1
         if bpi>-1 and bpi<len(palette.Baxis): 
-            if abs(palette.Baxis[bpi].b-targetPoint.b)<min_d:
+            if abs(palette.Baxis[bpi].b-targetPoint.b)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Baxis[bpi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Baxis[bpi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Baxis[bpi]
                     bpi=-1
                 else:
                     bpi+=1
             else: bpi=-1
         if bmi>-1 and bmi<len(palette.Baxis):
-            if abs(palette.Baxis[bmi].b-targetPoint.b)<min_d:
+            if abs(palette.Baxis[bmi].b-targetPoint.b)<check_d:
                 n+=1
-                new_d=calculate_distance(palette.Baxis[bmi],targetPoint)
+                new_d, new_check_d=calculate_distance(palette.Baxis[bmi],targetPoint)
                 if new_d<min_d:
                     min_d=new_d
+                    check_d=new_check_d
                     closestPoint=palette.Baxis[bmi]
                     bmi=-1
                 else:
@@ -137,7 +145,7 @@ def findClosestColorPointBrute(palette,targetPoint):
     min_d=800
     closestPoint=None
     for colorPoint in palette.colorPoints:
-        new_d=calculate_distance(colorPoint,targetPoint)
+        new_d, _ =calculate_distance(colorPoint,targetPoint)
         if new_d<min_d:
             min_d=new_d
             closestPoint=colorPoint
