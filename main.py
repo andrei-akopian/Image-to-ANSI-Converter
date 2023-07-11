@@ -15,17 +15,20 @@ def sample(imgpx,xa,ya,palette,arguments):
                     closestPoint.weight+=1
                 else:
                     if closestPoint==None:
-                        palette.addpoint(newPoint)
-                    elif closestPoint.is_filter: #TODO make filter less effective/add control for the effectiveness
-                        closestPoint.weight+=1 # * maybe I should make fitlerPoints adjust their color
+                        palette.appendPoint(newPoint)
+                        if arguments["find_closest_color_point_mode"] == "a":
+                            palette.addPointToAxies(newPoint)
+                    elif not(closestPoint.muteable): #TODO make filter less effective/add control for the effectiveness
+                        closestPoint.weight+=1 #TODO maybe I should make fitlerPoints adjust their color
                     elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of a point increases it's the volume
-                            closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)
-                            closestPoint.g=(closestPoint.g*closestPoint.weight+newPoint.g)//(closestPoint.weight+1)
-                            closestPoint.b=(closestPoint.b*closestPoint.weight+newPoint.b)//(closestPoint.weight+1)
-                            closestPoint.weight+=1
+                        closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)
+                        closestPoint.g=(closestPoint.g*closestPoint.weight+newPoint.g)//(closestPoint.weight+1)
+                        closestPoint.b=(closestPoint.b*closestPoint.weight+newPoint.b)//(closestPoint.weight+1)
+                        closestPoint.weight+=1
                     else:
-                        palette.addpoint(newPoint)
-
+                        palette.appendPoint(newPoint)
+                        if arguments["find_closest_color_point_mode"] == "a":
+                            palette.addPointToAxies(newPoint)
     return palette
 
 def calculate_pythagorean_distance(point0,point1):
@@ -186,7 +189,6 @@ if __name__ == "__main__":
     #create/load palette:
     palette=colorUtils.loadPalette(arguments["palettename"])
     if arguments["filterpalettename"]!=None:
-        # print("Loading filterpalette:",arguments["filterpalettename"])
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
     #algorithm specifications

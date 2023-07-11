@@ -89,3 +89,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] figure out the `.ans` file format and maybe make use of it
 - [ ] better palletes 
 - [ ] Make an interface app
+- [ ] I am using both yaml and json, maybe choose one

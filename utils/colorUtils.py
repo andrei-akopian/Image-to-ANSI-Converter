@@ -1,6 +1,7 @@
 import json
 import os
 
+#TODO make one loader for all palettes
 def loadPalette(palettename):
     palette=ColorPalette()
     #if custom palette provided -> load it
@@ -24,16 +25,20 @@ def loadPalette(palettename):
             raise ValueError(f"\033[1m'{palettename}' couldn't load palette")
         #create palette
         palette.muteable=False
+        palette.with_immuteables=True
         palette.monopattern=data["monopattern"]
         palette.duopattern=data["duopattern"]
         palette.foreground_prefix=data["foreground_prefix"]
         palette.background_prefix=data["background_prefix"]
 
         for cp in data["colors"]:
-            color_Point=ColorPoint(cp[2])
-            color_Point.foreground=cp[0]
-            color_Point.background=cp[1]
-            palette.addpoint(color_Point)
+            color_Point=ColorPoint(cp[0])
+            color_Point.foreground=cp[1]
+            color_Point.background=cp[2]
+            color_Point.muteable=False
+            color_Point.is_filter=False
+            palette.appendPoint(color_Point)
+            palette.addPointToAxies(color_Point)
     return palette
 
 def loadFilter(filterpalettename,palette):
@@ -55,11 +60,13 @@ def loadFilter(filterpalettename,palette):
     except:
         raise ValueError(f"\033[1m'{filterpalettename}' couldn't load filter palette")
     #add the filters to palette
-    palette.with_filter=True
-    for cp in data["colors"]: #TODO allow a simpler version of filter palettes
-        color_Point=ColorPoint(cp[2])
+    palette.with_immuteables=True
+    for cp in data["colors"]:
+        color_Point=ColorPoint(cp[0])
+        color_Point.muteable=False
         color_Point.is_filter=True
-        palette.addpoint(color_Point)
+        palette.appendPoint(color_Point)
+        palette.addPointToAxies(color_Point)
 
 class ColorPalette:
     def __init__(self):
@@ -73,15 +80,17 @@ class ColorPalette:
         self.Gaxis=[]
         self.Baxis=[]
 
-        self.muteable=True
-        self.with_filter=False
+        self.muteable=True #whether you can add new points to the palette
+        self.with_immuteables=False #in case filterpoints are present, to speed up .ground()
 
-        #to store the max to colors .findMax2() from
+        #to store the max to colors from .findMax2()
         self.color0=None
         self.color1=None
 
-    def addpoint(self,point):
+    def appendPoint(self,point):
         self.colorPoints.append(point)
+
+    def addPointToAxies(self,point):
         self.Raxis.insert(self.search(self.Raxis,point.r,key=lambda o: o.r),point)
         self.Gaxis.insert(self.search(self.Gaxis,point.g,key=lambda o: o.g),point)
         self.Baxis.insert(self.search(self.Baxis,point.b,key=lambda o: o.b),point)
@@ -102,24 +111,27 @@ class ColorPalette:
         cpI=0
         self.color0=None
         self.color1=None
-        if self.muteable and self.with_filter:
+
+        if self.muteable and self.with_immuteables:
             while cpI < len(self.colorPoints):
-                if self.colorPoints[cpI].is_filter:
-                    self.colorPoints[cpI].weight=1
+                if not(self.colorPoints[cpI].muteable):
+                    self.colorPoints[cpI].weight=self.colorPoints[cpI].default_weight
                     cpI+=1
                 else:
                     self.Raxis.remove(self.colorPoints[cpI])
                     self.Gaxis.remove(self.colorPoints[cpI])
                     self.Baxis.remove(self.colorPoints[cpI])
                     del self.colorPoints[cpI]
-        elif self.muteable and not(self.with_filter):
+        
+        elif self.muteable and not(self.with_immuteables):
             del self.colorPoints[:]
             del self.Raxis[:]
             del self.Gaxis[:]
             del self.Baxis[:]
+        
         elif not(self.muteable):
             while cpI < len(self.colorPoints):
-                self.colorPoints[cpI].weight=1
+                self.colorPoints[cpI].weight=self.colorPoints[cpI].default_weight
                 cpI+=1
 
     def fillPattern(self,fgcolor=None,bgcolor=None,ESC="\033"):
@@ -169,10 +181,15 @@ class ColorPoint:
         self.r=color[0]
         self.g=color[1]
         self.b=color[2]
+
+        self.default_weight=1
         self.weight=1
+
         self.foreground="" #TODO replace this with None
         self.background=""
-        self.is_filter=0
+
+        self.muteable=True #whether it can be adjusted or deleated 
+        self.is_filter=False #whether if should be displayed
 
     def getForeground(self):
         if self.foreground=="":
