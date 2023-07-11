@@ -185,19 +185,19 @@ class ColorPoint:
         self.default_weight=1
         self.weight=1
 
-        self.foreground="" #TODO replace this with None
-        self.background=""
+        self.foreground=None
+        self.background=None
 
         self.muteable=True #whether it can be adjusted or deleated 
         self.is_filter=False #whether if should be displayed
 
     def getForeground(self):
-        if self.foreground=="":
+        if self.foreground==None:
             return str(self.r)+";"+str(self.g)+";"+str(self.b)
         else:
             return self.foreground
     def getBackground(self):
-        if self.background=="":
+        if self.background==None:
             return str(self.r)+";"+str(self.g)+";"+str(self.b)
         else:
             return self.background

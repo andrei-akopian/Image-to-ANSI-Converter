@@ -78,7 +78,7 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better character sets arguments
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
-- [ ] add svg character selector
+- [ ] add find character based on pattern of the sample square
 - [ ] add support for UTF-8 characters
 - [ ] add something about terminal size
 - [ ] add csv export of pixels

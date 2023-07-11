@@ -8,7 +8,7 @@ sample_size: [16, 16]
 output_size: null
 contrastbreak: 128
 blur: 30
-distance_calculation_mode: p #TODO rename mode to algorithm
+distance_calculation_algorithm: p #TODO rename mode to algorithm
 
 hide: False
 palettename: null
@@ -20,7 +20,7 @@ foreground: True #True | False
 background: True #True | False | custom background code
 
 #TODO rename mode to algorithm
-find_closest_color_point_mode: a #a-advanced, b-brute: brute is faster for small palettes
+find_closest_color_point_algorithm: a #a-advanced, b-brute: brute is faster for small palettes
 
 use_debug: True
 debug:
