@@ -57,7 +57,7 @@ def processInputs(arguments,raw_arguments):
         if raw_arguments[key]!=None:
             match key:
                 case "contrast" | "contrastbreak" | "blur":
-                    arguments[key]=int(raw_arguments[key])
+                    arguments[key]=float(raw_arguments[key])
                 case "sample_size":
                     arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
                 case "characters":

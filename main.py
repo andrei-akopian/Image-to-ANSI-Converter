@@ -209,6 +209,7 @@ def perperation(arguments):
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
 
     #load image & put img.size into arguments
+    #TODO move this into inputUtils.getInputs()
     img=inputUtils.getImage(arguments["image_filename"])
     imgpx = img.load()
     image_size=img.size

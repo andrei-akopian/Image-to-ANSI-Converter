@@ -1,5 +1,5 @@
 # Image to ANSI converter
-A tool for converting images into [ANSI](https://en.wikipedia.org/wiki/ANSI_escape_code) arts. Written in python using Pillow image processing library. The scripts support comand line arguments, so you won't have to modify the code directly. I made this tool due to a lack of "proper" similar tools with sufficient customization and options.
+A tool for converting images into [ANSI](https://en.wikipedia.org/wiki/ANSI_escape_code) arts (or to make hacker kid profile pictures). Written in python using Pillow image processing library. The program has cli, so you won't have to modify the code directly. I made this tool due to a lack of "proper" similar tools with sufficient customization and options.
 
 ### Requirements
 - Python (3)
@@ -14,26 +14,28 @@ Requirements you probably already have:
 ## Usage
 
 ### Setup
-I haven't made any advanced setup, so you will have to download a zip of the repo from the [releases](https://github.com/andrei-akopian/Image-to-ANSI-Converter/releases) (because everything is currently probably broken) , extract it wherever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
+I haven't made any advanced setup, so you will have to download/clone a zip of the repo from the [releases](https://github.com/andrei-akopian/Image-to-ANSI-Converter/releases) (dev branch is probably broken), extract it wherever you want and `cd` into the extracted folder. Prepare the image you want to convert, I recomend placing it into the same folder, but using a filepath to some different location is also supported.
 
 ### Use
-Run the `main.py` file with the cli arguments arguments
+Run the `main.py` file with the cli arguments.
 
 Type `python3 main.py -h` into the commandline to display the help message.
+
+Note: there is also a more advanced option to pass arguments via a .yaml file (it has more options).
 
 **Here is a summery of the commandline arguments:**
 
 **Basic**
 
-`-f --filename` is the filepath to your image, the default image name is image.png.
+`-f --image_filename` is the filepath to your image, the default image name is image.png.
 
-`-s --sampleSize` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
+`-s --sample_size` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
 
-`-os --outputSize` Instead of messing with sampleSizes you can specify the size of the output image directly (in characters.) Same as sample size: WxH eg. 40x50 (40 wide, 50 tall)
+`-os --output_size` Instead of messing with sample_sizes you can specify the size of the output image directly (in characters.) Same as sample size: WxH eg. 40x50 (40 wide, 50 tall)
 
 **Save to a file**
 
-`-o --output` specify output file it can be then displayed with `cat output.txt` with all the colors
+`-o --output_filename` specify output file it can be then displayed with `cat output.txt` with all the colors
 
 `--hide` will prevent the program from printing into the commandline, if you use `--hide` then also use `-o` to save the output
 
@@ -47,17 +49,21 @@ Type `python3 main.py -h` into the commandline to display the help message.
 
 **Apperance**
 
-`-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are default palettes in the palettes folder. Use formatting guide in `paletteNotes.md` to mak your own.
+`-p --palettename` enter name of the palette you want to use. `3`,`4` and `8-bit.json` are default palettes in the palettes folder. Use formatting guide in `paletteNotes.md` to make your own.
 
-`-pf --filterpalettename` enter name of the palette with filter points you want to use (filters colors). Because the 3-bit filterpalette can filter out the entire image, you should use filters only when using a palette (Ik it's quite useless).
+`-pf --filterpalettename` this palette will act the same as a normal palette, but it's colors won't be displayed.
 
-`-char --characters` enter string of characters to be used in the art instead of the default one sorted light to dark.
+`-char --characters` enter string of characters to be used in the art instead of the default ones.  Input sorted light to dark.
 
-`-charf --characterfile` enter filename.txt with characters to be used sorted light to dark.
+`-charf --characterfile` enter filename.txt with characters to be used. Input sorted light to dark. characterfile.txt is provided and contains all ASCII characters.
 
 `-nbg --nobackground` creates an image with only the symbols colored. A custom background color can be entered eg: `-nbg="255;255;255"` (if using palette, it has to be copatible with the palette monopattern).
 
 `-nfg --noforeground` creates an image without symbols, only background pixels
+
+**Advanced**
+
+`-af --argumentfile` for more customization, pass a .yaml file that contains the inputs. Use defaultargumentsfile.yaml as template.
 
 ## Palettes
 Pallets allow the image to be created using a specific palette. Combined with contrast breaks it can allow to make nice images. It also has an option for specific patterns, those can be used to manipulate the program into outputing a file formatted into something not associated with ANSI.
@@ -90,3 +96,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better palletes 
 - [ ] Make an interface app
 - [ ] I am using both yaml and json, maybe choose one
+- [ ] better characters. Characters size isn't linear
