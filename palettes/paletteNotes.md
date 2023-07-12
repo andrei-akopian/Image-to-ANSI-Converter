@@ -12,12 +12,10 @@ Notate as json:
     // self.foreground_prefix="38;2;"
     // self.background_prefix="48;2;"
 
-    "color" : [
-        ["foreground","background",[0,0,0]]
+    "colors" : [
+        [[0,0,0],"foreground","background"] //filterpalettes don't need the last 2
     ]
 }
 ```
-
+#TODO improve palettes, add muteable to palette, and weight for points
 For filter palettes the first 4 keys are not really required, but the rgb tuple has to be on the 3rd spot, you can just out empty strings into the first 2
-
-#TODO Make custom filter palettes easier to make

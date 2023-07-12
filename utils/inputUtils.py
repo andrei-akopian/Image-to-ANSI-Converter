@@ -5,70 +5,74 @@ Read, load, cli, configs and other inputs
 
 import argparse
 import yaml
+import os
+from PIL import Image
+import math
 
 def getYamlFile(filepath):
     with open(filepath,"r") as f:
         return yaml.safe_load(f)
 
 def getInput():
-    argparseArguments=getYamlFile("utils/argparseArguments.yaml")
-    raw_arguments=parsecli(argparseArguments["Arguments"])
-    arguments=processInputs(raw_arguments) #dictionary
+    argparse_help_messages=getYamlFile("utils/argparseHelpMessages.yaml")
+    raw_arguments=parsecli(argparse_help_messages)
+
+    if raw_arguments["argumentfile"]!=None:
+        arguments=getYamlFile(raw_arguments["argumentfile"])
+    else:
+        arguments=getYamlFile("utils/defaultargumentfile.yaml")
+    arguments=processInputs(arguments,raw_arguments)
+
     return arguments
 
-def parsecli(ArgsParserArguments): #TODO rewrite it so that all the parameters can be specified in yaml
+def parsecli(argparse_help_messages):
     parser=argparse.ArgumentParser(
         prog="Image to ANSI converter"
     )
 
-    parser.add_argument("-f","--filename",default=ArgsParserArguments["filename"]["default"],help=ArgsParserArguments["filename"]["help"])
-    parser.add_argument("-o","--output",nargs='?',default=ArgsParserArguments["output"]["default"],const=ArgsParserArguments["output"]["const"],help=ArgsParserArguments["output"]["help"])
+    parser.add_argument("-af","--argumentfile",required=False,help=argparse_help_messages["argumentfile"]["help"])
 
-    parser.add_argument("-c","--contrast",default=ArgsParserArguments["contrast"]["default"],help=ArgsParserArguments["contrast"]["help"])
-    parser.add_argument("-cb","--contrastbreak",default=ArgsParserArguments["contrastbreak"]["default"],help=ArgsParserArguments["contrastbreak"]["help"])
-    parser.add_argument("-s","--sampleSize",default=ArgsParserArguments["sampleSize"]["default"],help=ArgsParserArguments["sampleSize"]["help"])
-    parser.add_argument("-os","--outputSize",default=ArgsParserArguments["outputSize"]["default"],help=ArgsParserArguments["outputSize"]["help"])
-    parser.add_argument("-b","--blur",default=ArgsParserArguments["blur"]["default"],help=ArgsParserArguments["blur"]["help"])
+    parser.add_argument("-f","--image_filename",required=False,help=argparse_help_messages["filename"]["help"])
+    parser.add_argument("-o","--output_filename",nargs="?",required=False,const=argparse_help_messages["output"]["const"],help=argparse_help_messages["output"]["help"])
 
-    parser.add_argument("--hide", action='store_const',const=True, default=ArgsParserArguments["hide"]["default"], help=ArgsParserArguments["hide"]["help"])
-    parser.add_argument("-p","--palettename",default=ArgsParserArguments["palettename"]["default"],help=ArgsParserArguments["palettename"]["help"])
-    parser.add_argument("-fp","--filterpalettename",default=ArgsParserArguments["filterpalettename"]["default"],help=ArgsParserArguments["filterpalettename"]["help"])
-    parser.add_argument("-char","--characters", default=ArgsParserArguments["characters"]["default"], help=ArgsParserArguments["characters"]["help"])
-    parser.add_argument("-charf","--characterfile", default=ArgsParserArguments["characterfile"]["default"], help=ArgsParserArguments["characterfile"]["help"])
-    parser.add_argument("-nfg","--noforeground",action='store_const',const=False, dest="foreground", default=ArgsParserArguments["background"]["default"], help=ArgsParserArguments["background"]["help"])
-    parser.add_argument("-nbg","--nobackground",nargs='?',const=False,default=ArgsParserArguments["foreground"]["default"], dest="background", help=ArgsParserArguments["foreground"]["help"])
+    parser.add_argument("-c","--contrast",required=False,help=argparse_help_messages["contrast"]["help"])
+    parser.add_argument("-cb","--contrastbreak",required=False,help=argparse_help_messages["contrastbreak"]["help"])
+    parser.add_argument("-s","--sample_size",required=False,help=argparse_help_messages["sample_size"]["help"])
+    parser.add_argument("-os","--output_size",required=False,help=argparse_help_messages["output_size"]["help"])
+    parser.add_argument("-b","--blur",required=False,help=argparse_help_messages["blur"]["help"])
 
-    return parser.parse_args()
+    parser.add_argument("--hide", action='store_true', required=False, help=argparse_help_messages["hide"]["help"])
+    parser.add_argument("-p","--palettename",required=False,help=argparse_help_messages["palettename"]["help"])
+    parser.add_argument("-fp","--filterpalettename",required=False,help=argparse_help_messages["filterpalettename"]["help"])
+    parser.add_argument("-char","--characters", required=False, help=argparse_help_messages["characters"]["help"])
+    parser.add_argument("-charf","--characterfile", required=False, help=argparse_help_messages["characterfile"]["help"])
+    parser.add_argument("-nfg","--noforeground",nargs="?", const=False, dest="foreground", required=False, help=argparse_help_messages["background"]["help"])
+    parser.add_argument("-nbg","--nobackground",nargs="?", const=False, dest="background", required=False, help=argparse_help_messages["foreground"]["help"])
 
-def processInputs(raw_arguments):
+    return vars(parser.parse_args())
+
+def processInputs(arguments,raw_arguments):
     #TODO many values need validation (add vlidation in the appropriate places) (value range validation)
-    arguments={
-        "image_filename":raw_arguments.filename,
-        "output_filename":raw_arguments.output,
-
-        "contrast":int(raw_arguments.contrast),
-        "contrastbreak":int(raw_arguments.contrastbreak),
-        "sample_size":processSampleSize(raw_arguments.sampleSize), #tuple [w,h],
-        "output_size":raw_arguments.outputSize, #tuple [w,h]
-        "blur":int(raw_arguments.blur),
-        "image_size":[0,0], #modified after image is parsed
-
-        "hide":raw_arguments.hide,
-        "palettename":raw_arguments.palettename,
-        "filterpalettename":raw_arguments.filterpalettename,
-        "characters":processCharacters(raw_arguments.characters,raw_arguments.characterfile), #str
-        "foreground":raw_arguments.foreground,
-        "background":raw_arguments.background
-    }
+    for key in raw_arguments.keys():
+        if raw_arguments[key]!=None:
+            match key:
+                case "contrast" | "contrastbreak" | "blur":
+                    arguments[key]=float(raw_arguments[key])
+                case "sample_size":
+                    arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
+                case "characters":
+                    arguments[key]=processCharacters(raw_arguments[key]) #str
+                case _:
+                    arguments[key]=raw_arguments[key]
     return arguments
 
-def processSampleSize(raw_sampleSize):
-    if "x" in raw_sampleSize:
-        sampleSize=list(map(int,raw_sampleSize.split("x")))
+def processSampleSize(raw_sample_size):
+    if "x" in raw_sample_size:
+        sample_size=list(map(int,raw_sample_size.split("x")))
     else:
-        int_sampleSize=int(raw_sampleSize)
-        sampleSize=[int_sampleSize,int_sampleSize]
-    return sampleSize
+        int_sample_size=int(raw_sample_size)
+        sample_size=[int_sample_size,int_sample_size]
+    return sample_size
 
 def processCharacters(raw_characters,raw_characterfile): 
     #< [str, None or str] 
@@ -79,3 +83,34 @@ def processCharacters(raw_characters,raw_characterfile):
         return characters
     else:
         return raw_characters
+
+def processOutputSize(image_size,output_size,sample_size):
+    """
+    #< image_size = (w,h)
+    #< output_size = (w,h) or "WxH"
+
+    #> sample_size = [w,h]
+    """
+    if output_size!=None:
+        if output_size==str: #* It could also be a list
+            try:
+                output_size=list(map(int,output_size.split("x")))
+                if len(output_size)!=2:
+                    raise Exception(f"\033[1m Incorrect --output_size input. Specify as WxH eg. 20x20")
+            except:
+                raise Exception(f"\033[1m Bad --output_size input. Specify as WxH eg. 20x20")
+        sample_size[0],sample_size[1]=math.ceil(image_size[0]/output_size[0]),math.ceil(image_size[1]/output_size[1])
+
+    return sample_size
+
+def getImage(image_filename):
+    if not os.path.exists(image_filename):
+        raise ValueError(f"\033[1m'{image_filename}' does not exist")
+    if not os.path.isfile(image_filename):
+        raise ValueError(f"\033[1m'{image_filename}' is not a file")
+    try: #TODO potentially add correct filename suggestion
+        img = Image.open(image_filename)
+    except:
+        raise ValueError(f"\033[1m'{image_filename}' is not an image file")
+    else:
+        return img

@@ -1,0 +1,26 @@
+argumentfile: argumentfile.yaml
+
+image_filename: image.png
+output_filename: null
+
+contrast: 1
+sample_size: [16, 16]
+output_size: null
+contrastbreak: 128
+blur: 30
+distance_calculation_algorithm: p #p-pythagorean | m-manhattan: manhattan faster for palettes
+
+hide: False
+palettename: null
+filterpalettename: null
+characters: \'^:!=*$%@#
+characterfile: null
+brightness_based_character_selection: False #True | False
+foreground: True #True | False
+background: True #True | False | custom background color
+
+find_closest_color_point_algorithm: a #a-advanced, b-brute: brute is faster for small palettes
+
+use_debug: True
+debug:
+  stamp_interval_times: False

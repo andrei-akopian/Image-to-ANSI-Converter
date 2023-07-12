@@ -1,3 +1,5 @@
+import os
+
 class OutputManager:
     def __init__(self,arguments,monopattern):
         self.passArguments(arguments)
@@ -18,6 +20,7 @@ class OutputManager:
         self.characters = arguments["characters"] #str
         self.image_size = arguments["image_size"] #tuple
         self.sample_size = arguments["sample_size"]
+        self.brightness_based_character_selection = arguments["brightness_based_character_selection"]
     
     def validateArguments(self):
         if self.hide:
@@ -25,9 +28,29 @@ class OutputManager:
                 raise Exception("\033[1mNo output file specified. use `-o` for output.txt or `-o <filename>` for custom output file")
         if self.foreground==False and self.background==False:
             raise Exception("\033[1mYou can't have both no foreground and no background. (it's pointless)")
+        #validate output filename
+        if self.outputFile!=None:
+            while os.path.exists(self.outputFile): #TODO add an option to override from the clargs
+                path, file_extension = os.path.splitext(self.outputFile)
+                print(f"\033[1mWarning\033[0m: File {self.outputFile} already exists")
+                print(f"Press 'Enter' to overwrite or enter '+' to rename into {path}_1{file_extension}")
+                new_filename=input("or enter new filename: ")
+                if new_filename=="":
+                    break
+                elif new_filename=="+":
+                    i=1
+                    new_filename=path+"_1"+file_extension
+                    while os.path.exists(new_filename):
+                        i+=1
+                        new_filename=path+"_"+str(i)+file_extension
+                    self.outputFile=new_filename
+                else:
+                    self.outputFile=new_filename
 
     def addPixel(self,palette):
-        pixel=self._generatePixel(palette)
+        palette.findMax2()
+        pixel=self._findAnsiColorCode(palette)
+        pixel+=self._findCharacter(palette)
         if not(self.hide):
             print(pixel,end="")
         if self.outputFile!=None:
@@ -47,33 +70,41 @@ class OutputManager:
             self.output_Content.append("\n")
 
     def createOutputFile(self):
-        if self.hide: #replace the percentage message from .addNewLine()
+        if self.hide: #replaces the percentage message from .addNewLine()
             print("\rDone   ")
         if self.outputFile!=None:
-            #TODO rework this part about filename extension checks
-            #TODO validate (check if perhaps repeating filename)
-            if not('.' in self.outputFile):
-                self.outputFile+='.txt'
             with open(self.outputFile,"w") as f:
                 for item in self.output_Content:
                     f.write(item)
-            print("\033[0mSaved output to\033[1m",self.outputFile,"\033[0m")
+            print(f"\033[0mSaved {os.path.getsize(self.outputFile)} bytes to\033[1m {self.outputFile}\033[0m")
 
-    def _generatePixel(self,palette):
-            color0,color1=palette.findMax2()
+    def _findAnsiColorCode(self,palette):
+            ansi_color_code=""
 
-            pixel=""
+            if self.foreground and self.background==True:
+                ansi_color_code=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+palette.color1.getForeground(),background=palette.background_prefix+palette.color0.getBackground())
+            elif self.foreground:
+                ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+palette.color0.getForeground())
+            elif self.background:
+                ansi_color_code=palette.monopattern.format(ESC="\033",color=palette.background_prefix+palette.color0.getBackground())
+            return ansi_color_code
 
-            if self.foreground==True and self.background==True:
-                fraction_0=color0.weight/(color0.weight+color1.weight)
-                fraction_1=1-fraction_0
-                pixel+=palette.duopattern.format(ESC="\033",foreground=palette.foreground_prefix+color1.getForeground(),background=palette.background_prefix+color0.getBackground())
-                pixel+=self.characters[round(fraction_1*2*(len(self.characters)-1))]
-            elif self.foreground==True:
-                fraction_from_sample=color0.weight/(self.sample_size[0]*self.sample_size[1])
-                pixel+=palette.monopattern.format(ESC="\033",color=palette.foreground_prefix+color0.getForeground())
-                pixel+=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
-            elif self.background==True:
-                pixel+=palette.monopattern.format(ESC="\033",color=palette.background_prefix+color0.getBackground())
-                pixel+=" "
-            return pixel
+    def _findCharacter(self,palette):
+        character=""
+        
+        if self.brightness_based_character_selection==True and self.background==True:
+            character=self.characters[round(palette.color1.getBrightness()*(len(self.characters))/256)]
+        elif self.brightness_based_character_selection==True:
+            character=self.characters[round(palette.color0.getBrightness()*(len(self.characters))/256)]
+
+        elif self.foreground==True and self.background==True:
+            fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
+            fraction_1=1-fraction_0
+            character=self.characters[round(fraction_1*2*(len(self.characters)-1))]
+        elif self.foreground==True:
+            fraction_from_sample=palette.color0.weight/(self.sample_size[0]*self.sample_size[1])
+            character=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
+        elif self.background==True:
+            character=" "
+        return character
+
