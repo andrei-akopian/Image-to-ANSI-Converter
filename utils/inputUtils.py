@@ -92,7 +92,7 @@ def processOutputSize(image_size,output_size,sample_size):
     #> sample_size = [w,h]
     """
     if output_size!=None:
-        if output_size==str: #* It could also be a list
+        if type(output_size)==str: #* It could also be a list
             try:
                 output_size=list(map(int,output_size.split("x")))
                 if len(output_size)!=2:
