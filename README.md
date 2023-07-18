@@ -96,4 +96,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] better palletes 
 - [ ] Make an interface app
 - [ ] I am using both yaml and json, maybe choose one
-- [ ] better characters. Characters size isn't linear
+- [ ] better characters. Characters fillness isn't linear

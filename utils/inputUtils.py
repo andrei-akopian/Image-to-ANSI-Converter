@@ -3,9 +3,9 @@
 Read, load, cli, configs and other inputs
 """
 
-import argparse
 import yaml
 import os
+import sys
 from PIL import Image
 import math
 
@@ -14,10 +14,9 @@ def getYamlFile(filepath):
         return yaml.safe_load(f)
 
 def getInput():
-    argparse_help_messages=getYamlFile("utils/argparseHelpMessages.yaml")
-    raw_arguments=parsecli(argparse_help_messages)
+    raw_arguments=parsecli()
 
-    if raw_arguments["argumentfile"]!=None:
+    if "argumentfile" in raw_arguments.keys():
         arguments=getYamlFile(raw_arguments["argumentfile"])
     else:
         arguments=getYamlFile("utils/defaultargumentfile.yaml")
@@ -25,46 +24,76 @@ def getInput():
 
     return arguments
 
-def parsecli(argparse_help_messages):
-    parser=argparse.ArgumentParser(
-        prog="Image to ANSI converter"
-    )
+def parsecli():
+    """parses cli and makes a dictionary
+    """
+    arguments=sys.argv[1:]
+    # * help message
+    if arguments[0] in "--help":
+        print("Fake print message")
+        pass #FIXME create a help message generator
 
-    parser.add_argument("-af","--argumentfile",required=False,help=argparse_help_messages["argumentfile"]["help"])
-
-    parser.add_argument("-f","--image_filename",required=False,help=argparse_help_messages["filename"]["help"])
-    parser.add_argument("-o","--output_filename",nargs="?",required=False,const=argparse_help_messages["output"]["const"],help=argparse_help_messages["output"]["help"])
-
-    parser.add_argument("-c","--contrast",required=False,help=argparse_help_messages["contrast"]["help"])
-    parser.add_argument("-cb","--contrastbreak",required=False,help=argparse_help_messages["contrastbreak"]["help"])
-    parser.add_argument("-s","--sample_size",required=False,help=argparse_help_messages["sample_size"]["help"])
-    parser.add_argument("-os","--output_size",required=False,help=argparse_help_messages["output_size"]["help"])
-    parser.add_argument("-b","--blur",required=False,help=argparse_help_messages["blur"]["help"])
-
-    parser.add_argument("--hide", action='store_true', required=False, help=argparse_help_messages["hide"]["help"])
-    parser.add_argument("-p","--palettename",required=False,help=argparse_help_messages["palettename"]["help"])
-    parser.add_argument("-fp","--filterpalettename",required=False,help=argparse_help_messages["filterpalettename"]["help"])
-    parser.add_argument("-char","--characters", required=False, help=argparse_help_messages["characters"]["help"])
-    parser.add_argument("-charf","--characterfile", required=False, help=argparse_help_messages["characterfile"]["help"])
-    parser.add_argument("-nfg","--noforeground",nargs="?", const=False, dest="foreground", required=False, help=argparse_help_messages["background"]["help"])
-    parser.add_argument("-nbg","--nobackground",nargs="?", const=False, dest="background", required=False, help=argparse_help_messages["foreground"]["help"])
-
-    return vars(parser.parse_args())
+    parsecli_arguments=getYamlFile("utils/parsecliArguments.yaml")
+    aliases=parsecli_arguments["aliases"]
+    def convertAlias(alias):
+        #check if is alias and return good value
+        if alias in aliases.keys(): #alias
+            return aliases[alias]
+        else: #not an alias
+            return alias
+    raw_arguments={}
+    current_key=None
+    for argument in arguments:
+        if argument[0]=="-":
+            if "=" in argument:
+                sign_position=argument.find("=")
+                current_key=convertAlias(argument[:sign_position].strip("-"))
+                argument=argument[sign_position+1:]
+                raw_arguments[current_key]=argument
+            else:
+                current_key=convertAlias(argument.strip("-"))
+                raw_arguments[current_key]=None
+        else:
+            raw_arguments[current_key]=argument
+    return raw_arguments
 
 def processInputs(arguments,raw_arguments):
     #TODO many values need validation (add vlidation in the appropriate places) (value range validation)
     for key in raw_arguments.keys():
-        if raw_arguments[key]!=None:
-            match key:
-                case "contrast" | "contrastbreak" | "blur":
-                    arguments[key]=float(raw_arguments[key])
-                case "sample_size":
-                    arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
-                case "characters":
-                    arguments[key]=processCharacters(raw_arguments[key]) #str
-                case _:
+        match key:
+            case "contrast" | "contrastbreak" | "blur":
+                arguments[key]=float(raw_arguments[key])
+            case "output_filename":
+                if raw_arguments[key]==None: #TODO make this cleaner when rewriting
+                    arguments[key]="output.txt"
+                else:
                     arguments[key]=raw_arguments[key]
+            case "hide":
+                arguments[key]=not(processBool(raw_arguments[key]))
+            case "sample_size":
+                arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
+            case "characters":
+                arguments[key]=processCharacters(raw_arguments[key]) #str
+            case "noforeground" | "nobackground":
+                arguments[key[2:]]=processGrounds(raw_arguments[key]) #bool or str
+            case _:
+                arguments[key]=raw_arguments[key]
     return arguments
+
+def processBool(value):
+    if value in [None, "0","off","f","false","False"]:
+        return False
+    elif value in ["1","on","t","true","True"]:
+        return True
+    else:
+        return None
+
+def processGrounds(ground):
+    ground_bool=processBool(ground)
+    if ground==None:
+        return ground
+    else:
+        return ground_bool
 
 def processSampleSize(raw_sample_size):
     if "x" in raw_sample_size:
