@@ -8,12 +8,16 @@ def convertImage(imgpx, palette, arguments, output_Manager, debug_InfoMenager, a
     debug_InfoMenager.printImageSize(arguments["image_size"])
     debug_InfoMenager.printNewImageSize(arguments["image_size"],arguments["sample_size"])
 
-    for ya in range(0,arguments["image_size"][1],arguments["sample_size"][1]):
+    for ya in range(0,arguments["image_size"][1]//arguments["sample_size"][1]):
+        ya=ya*arguments["sample_size"][1]
         output_Manager.startLine(palette.monopattern)
 
-        for xa in range(0,arguments["image_size"][0],arguments["sample_size"][0]):
+        for xa in range(0,arguments["image_size"][0]//arguments["sample_size"][0]):
+            xa=xa*arguments["sample_size"][0]
             palette=sample(imgpx,xa,ya,palette,arguments,adjusted_functions)
             output_Manager.addPixel(palette)
+        #FIXME last column is cut off if sample_size doesn't match it completely (done to make output_size feature work)
+        #make this a custom option
 
         if arguments["use_debug"]:
             if arguments["debug"]["stamp_interval_times"]:
@@ -209,7 +213,7 @@ def perperation(arguments):
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
 
     #load image & put img.size into arguments
-    #TODO move this into inputUtils.getInputs()
+    #TODO move all this into inputUtils.getInputs()
     img=inputUtils.getImage(arguments["image_filename"])
     imgpx = img.load()
     image_size=img.size

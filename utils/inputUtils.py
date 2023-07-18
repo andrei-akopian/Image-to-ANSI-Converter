@@ -133,8 +133,7 @@ def processOutputSize(image_size,output_size,sample_size):
                         raise Exception(f"\033[1m Incorrect --output_size input. Specify as WxH eg. 20x20")
                 except:
                     raise Exception(f"\033[1m Bad --output_size input. Specify as WxH eg. 20x20")
-        #FIXME for large sizes the ciel can cause a 50% size decrease
-        sample_size[0],sample_size[1]=math.ceil(image_size[0]/output_size[0]),math.ceil(image_size[1]/output_size[1])
+        sample_size[0],sample_size[1]=math.floor(image_size[0]/output_size[0]),math.floor(image_size[1]/output_size[1])
 
     return sample_size
 
