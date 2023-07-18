@@ -28,8 +28,10 @@ def parsecli():
     """parses cli and makes a dictionary
     """
     arguments=sys.argv[1:]
+    if len(arguments)==0:
+        return {}
     # * help message
-    if arguments[0] in "--help":
+    elif arguments[0] in "--help":
         print("Fake print message")
         pass #FIXME create a help message generator
 
@@ -121,13 +123,17 @@ def processOutputSize(image_size,output_size,sample_size):
     #> sample_size = [w,h]
     """
     if output_size!=None:
-        if type(output_size)==str: #* It could also be a list
-            try:
-                output_size=list(map(int,output_size.split("x")))
-                if len(output_size)!=2:
-                    raise Exception(f"\033[1m Incorrect --output_size input. Specify as WxH eg. 20x20")
-            except:
-                raise Exception(f"\033[1m Bad --output_size input. Specify as WxH eg. 20x20")
+        if type(output_size)==str: #* if it's a list, the job is done already
+            if output_size=="fill":
+                output_size=os.get_terminal_size()
+            else:
+                try:
+                    output_size=list(map(int,output_size.split("x")))
+                    if len(output_size)!=2:
+                        raise Exception(f"\033[1m Incorrect --output_size input. Specify as WxH eg. 20x20")
+                except:
+                    raise Exception(f"\033[1m Bad --output_size input. Specify as WxH eg. 20x20")
+        #FIXME for large sizes the ciel can cause a 50% size decrease
         sample_size[0],sample_size[1]=math.ceil(image_size[0]/output_size[0]),math.ceil(image_size[1]/output_size[1])
 
     return sample_size

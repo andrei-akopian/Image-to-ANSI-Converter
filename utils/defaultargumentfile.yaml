@@ -5,7 +5,7 @@ output_filename: null
 
 contrast: 1
 sample_size: [16, 16]
-output_size: null
+output_size: null #null | [w,h] | fill-fill terminal
 contrastbreak: 128
 blur: 30
 distance_calculation_algorithm: p #p-pythagorean | m-manhattan: manhattan faster for palettes
