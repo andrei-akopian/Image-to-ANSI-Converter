@@ -31,7 +31,7 @@ Note: there is also a more advanced option to pass arguments via a .yaml file (i
 
 `-s --sample_size` Size of the samples, default is 16x16 (the output will be 16x smaller) enter as XxY or just X eg. 12x15 or just 12
 
-`-os --output_size` Instead of messing with sample_sizes you can specify the size of the output image directly (in characters.) Same as sample size: WxH eg. 40x50 (40 wide, 50 tall)
+`-os --output_size` Instead of messing with sample_sizes you can specify the size of the output image directly (in characters.) Same as sample size: WxH eg. 40x50 (40 wide, 50 tall). `-os=fill` option will scale the image to fill the terminal.
 
 **Save to a file**
 
@@ -65,6 +65,8 @@ Note: there is also a more advanced option to pass arguments via a .yaml file (i
 
 `-af --argumentfile` for more customization, pass a .yaml file that contains the inputs. Use defaultargumentsfile.yaml as template.
 
+You can overwrite any other arguments in the argumentfile by adding `--argument`
+
 ## Palettes
 Pallets allow the image to be created using a specific palette. Combined with contrast breaks it can allow to make nice images. It also has an option for specific patterns, those can be used to manipulate the program into outputing a file formatted into something not associated with ANSI.
 
@@ -90,7 +92,6 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] maybe try writing to the file as the program is running
 - [ ] some kind of chaching&optimization or lossy compression
 - [ ] a better sampling alg
-- [ ] better cli
 - [ ] figure out the `.ans` file format and maybe make use of it
 - [ ] better palletes 
 - [ ] Make an interface app

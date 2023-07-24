@@ -92,19 +92,20 @@ class OutputManager:
     def _findCharacter(self,palette):
         character=""
         
-        if self.brightness_based_character_selection==True and self.background==True:
-            character=self.characters[round(palette.color1.getBrightness()*(len(self.characters))/256)]
-        elif self.brightness_based_character_selection==True:
-            character=self.characters[round(palette.color0.getBrightness()*(len(self.characters))/256)]
-
-        elif self.foreground==True and self.background==True:
-            fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
-            fraction_1=1-fraction_0
-            character=self.characters[round(fraction_1*2*(len(self.characters)-1))]
-        elif self.foreground==True:
-            fraction_from_sample=palette.color0.weight/(self.sample_size[0]*self.sample_size[1])
-            character=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
-        elif self.background==True:
-            character=" "
+        if self.brightness_based_character_selection==True:
+            if self.background==True:
+                character=self.characters[round(palette.color1.getBrightness()*(len(self.characters))/256)]
+            elif self.brightness_based_character_selection==True:
+                character=self.characters[round(palette.color0.getBrightness()*(len(self.characters))/256)]
+        else:
+            if self.foreground==True and self.background==True:
+                fraction_0=palette.color0.weight/(palette.color0.weight+palette.color1.weight)
+                fraction_1=1-fraction_0
+                character=self.characters[round(fraction_1*2*(len(self.characters)-1))]
+            elif self.foreground==True:
+                fraction_from_sample=palette.color0.weight/(self.sample_size[0]*self.sample_size[1])
+                character=self.characters[round((fraction_from_sample-0.5)*2*(len(self.characters)-1))]
+            elif self.background==True:
+                character=" "
         return character
 
