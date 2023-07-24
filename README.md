@@ -81,7 +81,6 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] generate output images so user doesn't have to screenshort them
 - [ ] improve contrast algorithm
 - [ ] contrast is probably messing with the sampling algorithm
-- [ ] better character sets arguments
 - [ ] add nocolor
 - [ ] add bold, italic etc. 
 - [ ] add find character based on pattern of the sample square
@@ -97,3 +96,4 @@ Original file from [Wikipedia](https://en.wikipedia.org/wiki/The_Starry_Night#/m
 - [ ] Make an interface app
 - [ ] I am using both yaml and json, maybe choose one
 - [ ] better characters. Characters fillness isn't linear
+- [ ] better character sets arguments

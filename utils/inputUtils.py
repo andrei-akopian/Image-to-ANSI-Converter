@@ -22,7 +22,12 @@ def getInput():
         arguments=getYamlFile("utils/defaultargumentfile.yaml")
     arguments=processInputs(arguments,raw_arguments)
 
-    return arguments
+    img=getImage(arguments["image_filename"])
+    imgpx = img.load()
+    arguments["image_size"] = img.size
+    arguments["sample_size"] = processOutputSize(arguments["image_size"],arguments["output_size"],arguments["sample_size"])
+
+    return arguments, imgpx
 
 def parsecli():
     """parses cli and makes a dictionary
@@ -30,12 +35,14 @@ def parsecli():
     arguments=sys.argv[1:]
     if len(arguments)==0:
         return {}
-    # * help message
-    elif arguments[0] in "--help":
-        print("Fake print message")
-        pass #FIXME create a help message generator
-
     parsecli_arguments=getYamlFile("utils/parsecliArguments.yaml")
+    #* help message
+    if arguments[0] in "--help":
+        _format=lambda p,s,n: p+s+" "*(n-len(s)-len(p))
+        print("Help:")
+        for alias in parsecli_arguments["aliases"]:
+            print(_format("-",alias,8),_format("--",parsecli_arguments["aliases"][alias],20),"|",parsecli_arguments[parsecli_arguments["aliases"][alias]]["help"])
+        exit()
     aliases=parsecli_arguments["aliases"]
     def convertAlias(alias):
         #check if is alias and return good value

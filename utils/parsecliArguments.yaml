@@ -29,9 +29,9 @@ characters:
   help: "enter characters"
 characterfile:
   help: "enter filepath/name with the characters"
-foreground: 
+noforeground: 
   help: "Doesn't display any foreground colors/symbols"
-background: 
+nobackground: 
   help: "Doesn't display any background colors, bg colors will transition into foreground"
 
 aliases:

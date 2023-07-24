@@ -50,7 +50,7 @@ def sample(imgpx,xa,ya,palette,arguments,adjusted_functions):
                         if arguments["find_closest_color_point_algorithm"] == "a":
                             palette.addPointToAxies(newPoint)
                     elif not(closestPoint.muteable): #TODO make filter less effective/add control for the effectiveness
-                        closestPoint.weight+=1 #TODO maybe I should make fitlerPoints adjust their color
+                        closestPoint.weight+=1 #TODO maybe I should make filterPoints adjust their color
                     elif d<((arguments["blur"]+closestPoint.weight)*0.24)**(1/3): #the weight of a point increases it's the volume
                         closestPoint.r=(closestPoint.r*closestPoint.weight+newPoint.r)//(closestPoint.weight+1)
                         closestPoint.g=(closestPoint.g*closestPoint.weight+newPoint.g)//(closestPoint.weight+1)
@@ -113,7 +113,8 @@ def setAdjustedFunctions(arguments):
                         rpi=-1
                     else:
                         rpi+=1
-                else: rpi=-1
+                else: 
+                    rpi=-1
             if rmi>-1 and rmi<len(palette.Raxis):
                 if abs(palette.Raxis[rmi].r-targetPoint.r)<check_d:
                     n+=1
@@ -125,7 +126,8 @@ def setAdjustedFunctions(arguments):
                         rmi=-1
                     else:
                         rmi-=1
-                else: rmi=-1
+                else: 
+                    rmi=-1
             if gpi>-1 and gpi<len(palette.Gaxis): 
                 if abs(palette.Gaxis[gpi].g-targetPoint.g)<check_d:
                     n+=1
@@ -137,7 +139,8 @@ def setAdjustedFunctions(arguments):
                         gpi=-1
                     else:
                         gpi+=1
-                else: gpi=-1
+                else: 
+                    gpi=-1
             if gmi>-1 and gmi<len(palette.Gaxis):
                 if abs(palette.Gaxis[gmi].g-targetPoint.g)<check_d:
                     n+=1
@@ -149,7 +152,8 @@ def setAdjustedFunctions(arguments):
                         gmi=-1
                     else:
                         gmi-=1
-                else: gmi=-1
+                else: 
+                    gmi=-1
             if bpi>-1 and bpi<len(palette.Baxis): 
                 if abs(palette.Baxis[bpi].b-targetPoint.b)<check_d:
                     n+=1
@@ -161,7 +165,8 @@ def setAdjustedFunctions(arguments):
                         bpi=-1
                     else:
                         bpi+=1
-                else: bpi=-1
+                else: 
+                    bpi=-1
             if bmi>-1 and bmi<len(palette.Baxis):
                 if abs(palette.Baxis[bmi].b-targetPoint.b)<check_d:
                     n+=1
@@ -172,8 +177,9 @@ def setAdjustedFunctions(arguments):
                         closestPoint=palette.Baxis[bmi]
                         bmi=-1
                     else:
-                        bmi+=1
-                lse: bmi=-1
+                        bmi-=1
+                else: 
+                    bmi=-1
         return closestPoint, min_d
 
     def findClosestColorPointBrute(palette,targetPoint,calculateDistance):
@@ -212,14 +218,6 @@ def setAdjustedFunctions(arguments):
 def perperation(arguments):
     debug_InfoMenager=debugInfoUtils.DebugInfoManager(arguments["hide"])
 
-    #load image & put img.size into arguments
-    #TODO move all this into inputUtils.getInputs()
-    img=inputUtils.getImage(arguments["image_filename"])
-    imgpx = img.load()
-    image_size=img.size
-    arguments["image_size"] = image_size
-    arguments["sample_size"] = inputUtils.processOutputSize(image_size,arguments["output_size"],arguments["sample_size"])
-
     #create/load palette:
     palette=colorUtils.loadPalette(arguments["palettename"])
     if arguments["filterpalettename"]!=None:
@@ -230,10 +228,10 @@ def perperation(arguments):
     
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 
-    return imgpx, palette, arguments, output_Manager, debug_InfoMenager, adjusted_functions
+    return palette, arguments, output_Manager, debug_InfoMenager, adjusted_functions
 
 if __name__ == "__main__":
     #parse arguments
-    arguments=inputUtils.getInput()
+    arguments, imgpx=inputUtils.getInput()
 
-    convertImage(*perperation(arguments))
+    convertImage(imgpx,*perperation(arguments))
