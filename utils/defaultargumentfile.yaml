@@ -8,7 +8,11 @@ sample_size: [16, 16]
 output_size: null #null | [w,h] | fill-fill terminal
 contrastbreak: 128
 blur: 30
-distance_calculation_algorithm: p #p-pythagorean | m-manhattan: manhattan faster for palettes
+convert_image:
+  algorithm_specifications:
+    distance_calculation_algorithm: p #p-pythagorean | m-manhattan: manhattan faster for palettes
+    find_closest_color_point_algorithm: a #a-advanced, b-brute: brute is faster for small palettes
+    # sampling_algorithm: 
 
 hide: False
 palettename: null
@@ -18,8 +22,6 @@ characterfile: null
 brightness_based_character_selection: False #True | False
 foreground: True #True | False
 background: True #True | False | custom background color
-
-find_closest_color_point_algorithm: a #a-advanced, b-brute: brute is faster for small palettes
 
 use_debug: True
 debug:

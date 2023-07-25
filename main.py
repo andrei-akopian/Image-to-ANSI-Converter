@@ -47,7 +47,7 @@ def sample(imgpx,xa,ya,palette,arguments,adjusted_functions):
                 else:
                     if closestPoint==None:
                         palette.appendPoint(newPoint)
-                        if arguments["find_closest_color_point_algorithm"] == "a":
+                        if arguments["convert_image"]["algorithm_specifications"]["find_closest_color_point_algorithm"] == "a":
                             palette.addPointToAxies(newPoint)
                     elif not(closestPoint.muteable): #TODO make filter less effective/add control for the effectiveness
                         closestPoint.weight+=1 #TODO maybe I should make filterPoints adjust their color
@@ -58,7 +58,7 @@ def sample(imgpx,xa,ya,palette,arguments,adjusted_functions):
                         closestPoint.weight+=1
                     else:
                         palette.appendPoint(newPoint)
-                        if arguments["find_closest_color_point_algorithm"] == "a":
+                        if arguments["convert_image"]["algorithm_specifications"]["find_closest_color_point_algorithm"] == "a":
                             palette.addPointToAxies(newPoint)
     return palette
 
@@ -224,7 +224,7 @@ def perperation(arguments):
         colorUtils.loadFilter(arguments["filterpalettename"],palette)
 
     #algorithm specifications
-    adjusted_functions = setAdjustedFunctions(arguments)
+    adjusted_functions = setAdjustedFunctions(arguments["convert_image"]["algorithm_specifications"])
     
     output_Manager=outputUtils.OutputManager(arguments,palette.monopattern)
 

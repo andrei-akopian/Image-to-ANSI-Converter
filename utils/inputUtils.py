@@ -14,6 +14,10 @@ def getYamlFile(filepath):
         return yaml.safe_load(f)
 
 def getInput():
+    """gets all inputs necessary for the cli
+    #> arguments = {dict} (not validated)
+    #> imgpx = Pillow Pixel Image
+    """
     raw_arguments=parsecli()
 
     if "argumentfile" in raw_arguments.keys():
@@ -44,7 +48,7 @@ def parsecli():
             print(_format("-",alias,8),_format("--",parsecli_arguments["aliases"][alias],20),"|",parsecli_arguments[parsecli_arguments["aliases"][alias]]["help"])
         exit()
     aliases=parsecli_arguments["aliases"]
-    def convertAlias(alias):
+    def _convertAlias(alias):
         #check if is alias and return good value
         if alias in aliases.keys(): #alias
             return aliases[alias]
@@ -56,18 +60,29 @@ def parsecli():
         if argument[0]=="-":
             if "=" in argument:
                 sign_position=argument.find("=")
-                current_key=convertAlias(argument[:sign_position].strip("-"))
+                current_key=_convertAlias(argument[:sign_position].strip("-"))
                 argument=argument[sign_position+1:]
                 raw_arguments[current_key]=argument
             else:
-                current_key=convertAlias(argument.strip("-"))
+                current_key=_convertAlias(argument.strip("-"))
                 raw_arguments[current_key]=None
         else:
             raw_arguments[current_key]=argument
     return raw_arguments
 
 def processInputs(arguments,raw_arguments):
-    #TODO many values need validation (add vlidation in the appropriate places) (value range validation)
+    def _setArgumentValue(arguments,long_key,value):
+        split_key=long_key.split(".")
+        walker=arguments
+        try:
+            for keyI in range(len(split_key)-1):
+                walker=walker[split_key[keyI]]
+            walker[split_key[-1]]=value
+        except:
+            raise IOError(f"\033[1m{long_key} is not a valid argument")
+        return arguments
+
+    #TODO many values need validation (add vlidation in the appropriate places) (value range validation) combine with conversions
     for key in raw_arguments.keys():
         match key:
             case "contrast" | "contrastbreak" | "blur":
@@ -79,6 +94,8 @@ def processInputs(arguments,raw_arguments):
                     arguments[key]=raw_arguments[key]
             case "hide":
                 arguments[key]=not(processBool(raw_arguments[key]))
+            case "use_debug":
+                arguments[key]=processBool(raw_arguments[key])
             case "sample_size":
                 arguments[key]=processSampleSize(raw_arguments[key]) #tuple [w,h]
             case "characters":
@@ -86,7 +103,7 @@ def processInputs(arguments,raw_arguments):
             case "noforeground" | "nobackground":
                 arguments[key[2:]]=processGrounds(raw_arguments[key]) #bool or str
             case _:
-                arguments[key]=raw_arguments[key]
+                arguments=_setArgumentValue(arguments,key,raw_arguments[key])
     return arguments
 
 def processBool(value):

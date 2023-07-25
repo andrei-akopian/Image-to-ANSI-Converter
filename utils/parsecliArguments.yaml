@@ -49,3 +49,4 @@ aliases:
   charf: characterfile
   nfg: noforeground
   nbg: nobackground
+  d: use_debug
